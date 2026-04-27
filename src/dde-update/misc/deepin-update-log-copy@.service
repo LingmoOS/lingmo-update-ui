@@ -1,0 +1,28 @@
+[Unit]
+Description=Copy Deepin Update Log to Desktop
+
+[Service]
+Type=oneshot
+ExecStart=/usr/libexec/deepin-update-ui/copy-update-log.sh %i
+User=root
+StandardOutput=journal
+StandardError=journal
+
+# Security hardening
+CapabilityBoundingSet=CAP_CHOWN CAP_DAC_OVERRIDE CAP_FOWNER CAP_SETUID CAP_SETGID
+NoNewPrivileges=yes
+ProtectKernelModules=yes
+RestrictRealtime=yes
+InaccessiblePaths=/etc/shadow /etc/pam.d /etc/security
+ProtectProc=invisible
+ProtectKernelTunables=yes
+ProtectClock=yes
+MemoryDenyWriteExecute=yes
+RestrictSUIDSGID=yes
+PrivateDevices=yes
+PrivateIPC=yes
+ProtectControlGroups=yes
+ProtectHostname=yes
+LockPersonality=yes
+RestrictNamespaces=yes
+ExecPaths=/usr/bin /usr/libexec /bin

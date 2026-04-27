@@ -1,0 +1,518 @@
+deepin-update-ui (1.0.49) unstable; urgency=medium
+
+  * feat: add update detail expansion and fix version display
+  * fix: prevent DBus signal infinite loop in QML bindings
+  * fix: fix up key navigation in error and update complete dialogs
+  * [dde-update-ui] Updates for project Deepin Desktop Environment
+    (#259)
+  * [dde-update-ui] Updates for project Deepin Desktop Environment
+    (#231)
+
+ -- zhangkun <zhangkun2@uniontech.com>  Thu, 09 Apr 2026 20:28:05 +0800
+
+deepin-update-ui (1.0.48) unstable; urgency=medium
+
+  * fix: replace UpdateSelectDialog with Loader for dynamic creation
+  * chore: refactor X11 session startup for update environment
+  * fix(ui): adjust expand/collapse button style in UpdateSetting
+
+ -- zhangkun <zhangkun2@uniontech.com>  Wed, 25 Mar 2026 18:13:15 +0800
+
+deepin-update-ui (1.0.47) unstable; urgency=medium
+
+  * fix: calculate required space for download failures
+  * fix: adjust update disable page layout and icon
+
+ -- zhangkun <zhangkun2@uniontech.com>  Wed, 18 Mar 2026 14:14:40 +0800
+
+deepin-update-ui (1.0.46) unstable; urgency=medium
+
+  * fix: improve UpdateLogDialog scroll area styling
+  * fix: add disk space check and download failure tips
+
+ -- zhangkun <zhangkun2@uniontech.com>  Thu, 12 Mar 2026 21:22:01 +0800
+
+deepin-update-ui (1.0.45) unstable; urgency=medium
+
+  * fix(recovery): No automatic reboot after rollback
+  * fix: fix plugin loading order and state synchronization
+  * fix: correct update notification display logic
+
+ -- zhangkun <zhangkun2@uniontech.com>  Thu, 05 Mar 2026 20:44:14 +0800
+
+deepin-update-ui (1.0.44) unstable; urgency=medium
+
+  * fix: replace xxd dependency with printf for hex decoding
+  * fix: fix update page display issues
+
+ -- zhangkun <zhangkun2@uniontech.com>  Fri, 27 Feb 2026 17:03:22 +0800
+
+deepin-update-ui (1.0.43) unstable; urgency=medium
+
+  * fix: Font styling issues in the Advanced Settings of Update Settings
+  * fix: update translations
+  * fix: add timeout handling for invalid Lastore1 interface
+  * i18n: Translate update_en.ts in fr
+  * feat: make hidden settings searchable
+
+ -- zhangkun <zhangkun2@uniontech.com>  Thu, 05 Feb 2026 19:23:59 +0800
+
+deepin-update-ui (1.0.42) unstable; urgency=medium
+
+  * fix: 调整更新对话框间距
+
+ -- zhangkun <zhangkun2@uniontech.com>  Thu, 29 Jan 2026 20:35:31 +0800
+
+deepin-update-ui (1.0.41) unstable; urgency=medium
+
+  * chore: update "update" icon
+  * i18n: Translate update_en.ts in ca
+
+ -- zhangkun <zhangkun2@uniontech.com>  Fri, 23 Jan 2026 10:28:50 +0800
+
+deepin-update-ui (1.0.40) unstable; urgency=medium
+
+  * fix: enhance service security hardening (#220)
+  * feat: optimize update log display interface
+  * fix: enhance systemd service security hardening (#206)
+  * fix: adjust update history background radius
+  * fix: consider lastore daemon status in plugin disable check
+
+ -- zhangkun <zhangkun2@uniontech.com>  Thu, 15 Jan 2026 19:25:04 +0800
+
+deepin-update-ui (1.0.39) unstable; urgency=medium
+
+  * i18n: Updates for project Deepin Desktop Environment (#214)
+  * fix: update translations
+  * fix: improve update history UI display
+  * fix: remove redundant debug logs and fix update UI state
+
+ -- zhangkun <zhangkun2@uniontech.com>  Tue, 06 Jan 2026 21:16:41 +0800
+
+deepin-update-ui (1.0.38) unstable; urgency=medium
+
+  * fix: refresh UI model after updating log info
+  * fix: separate battery warning from update failure title
+
+ -- xionglinlin <xionglinlin@uniontech.com>  Fri, 26 Dec 2025 11:24:37 +0800
+
+deepin-update-ui (1.0.37) unstable; urgency=medium
+
+  * i18n: Translate dock-update-plugin_en.ts in fi
+  * i18n: Updates for project Deepin Desktop Environment (#196)
+
+ -- zhangkun <zhangkun2@uniontech.com>  Thu, 18 Dec 2025 21:42:01 +0800
+
+deepin-update-ui (1.0.36) unstable; urgency=medium
+
+  * feat: enhance dock update plugin visibility control
+  * refactor: optimize TipsWidget geometry handling
+  * fix: add tooltip and improve text display for update title
+
+ -- zhaoyingzhen <zhaoyingzhen@uniontech.com>  Thu, 27 Nov 2025 17:32:29 +0800
+
+deepin-update-ui (1.0.35) unstable; urgency=medium
+
+  * fix: fix testing channel network access issue
+  * refactor: remove hardcoded compiler flags
+  * feat: add reproducible build parameters
+
+ -- xionglinlin <xionglinlin@uniontech.com>  Mon, 24 Nov 2025 10:11:07 +0800
+
+deepin-update-ui (1.0.34) unstable; urgency=medium
+
+  * add debian/control dependencies with tray-loader-dev
+
+ -- wujiangyu <wujiangyu@uniontech.com>  Fri, 14 Nov 2025 10:04:23 +0800
+
+deepin-update-ui (1.0.33) unstable; urgency=medium
+
+  * i18n: Updates for project Deepin Desktop Environment (#193)
+  * feat: add dock update plugin translation config
+  * i18n: Updates for project Deepin Desktop Environment (#191)
+  * feat: add dock update status plugin
+  * i18n: Translate update_en.ts in ja
+  * i18n: Translate update_en.ts in ja
+
+ -- xionglinlin <xionglinlin@uniontech.com>  Thu, 13 Nov 2025 19:49:07 +0800
+
+deepin-update-ui (1.0.32) unstable; urgency=medium
+
+  * [dde-update-ui] Updates for project Deepin Desktop Environment
+
+ -- lvpeilong <lvpeilong@uniontech.com>  Thu, 30 Oct 2025 20:17:28 +0800
+
+deepin-update-ui (1.0.31) unstable; urgency=medium
+
+  * chore: update package license from LGPL to GPL
+  * fix: multiple screens may cause display overlap
+
+ -- zhangkun <zhangkun2@uniontech.com>  Thu, 16 Oct 2025 20:44:08 +0800
+
+deepin-update-ui (1.0.30) unstable; urgency=medium
+
+  * [dde-update-ui] Updates for project Deepin Desktop Environment (#180)
+  * fix: fix check update status display logic
+  * Revert "fix: keep time inputs always enabled"
+  * i18n: Updates for project Deepin Desktop Environment (#178)
+  * fix: adjust privacy label layout in update module
+
+ -- Xiong LinLin <xionglinlin@uniontech.com>  Sun, 28 Sep 2025 16:15:05 +0800
+
+deepin-update-ui (1.0.29) unstable; urgency=medium
+
+  * i18n: Translate dde-rollback_en.ts in ru (#176)
+
+ -- YeShanShan <yeshanshan@uniontech.com>  Thu, 18 Sep 2025 20:02:59 +0800
+
+deepin-update-ui (1.0.28) unstable; urgency=medium
+
+  * i18n: Updates for project Deepin Desktop Environment (#172)
+
+ -- zhangkun <zhangkun2@uniontech.com>  Thu, 11 Sep 2025 21:01:01 +0800
+
+deepin-update-ui (1.0.27) unstable; urgency=medium
+
+  * fix: keep time inputs always enabled
+
+ -- zhangkun <zhangkun2@uniontech.com>  Fri, 05 Sep 2025 10:34:19 +0800
+
+deepin-update-ui (1.0.26) unstable; urgency=medium
+
+  * fix: optimize system activation state refresh
+  * i18n: Updates for project Deepin Desktop Environment (#169)
+  * fix: add update notification red dot indicator
+
+ -- zhangkun <zhangkun2@uniontech.com>  Thu, 28 Aug 2025 14:32:42 +0200
+
+deepin-update-ui (1.0.25) unstable; urgency=medium
+
+  * [dde-update-ui] Updates for project Deepin Desktop Environment
+  * fix: optimize UI elements and remove debug logs
+  * refactor: improve DBus call handling and return values
+  * [dde-update-ui] Updates for project Deepin Desktop Environment (#158)
+  * feat: Improve log coverage
+  * fix: improve UI consistency and layout in update module
+  * fix: add tooltip for truncated checkbox text
+  * fix: correct error message display for update failures
+
+ -- xionglinlin <xionglinlin@uniontech.com>  Thu, 21 Aug 2025 21:36:56 +0800
+
+deepin-update-ui (1.0.24) unstable; urgency=medium
+
+  * i18n: Translate update_en.ts in nl
+  * i18n: Translate update_en.ts in ca
+  * i18n: Translate update_en.ts in zh_CN
+  * i18n: Translate update_en.ts in zh_HK
+  * i18n: Translate update_en.ts in zh_TW
+  * i18n: Translate update_en.ts in de_DE
+  * i18n: Translate update_en.ts in ja
+  * i18n: Translate update_en.ts in uk
+  * i18n: Translate update_en.ts in nl
+  * i18n: Translate update_en.ts in pl
+  * i18n: Translate update_en.ts in zh_TW
+  * i18n: Translate update_en.ts in lo
+  * i18n: Translate update_en.ts in pt_BR
+  * i18n: Translate update_en.ts in tr
+  * i18n: Translate update_en.ts in zh_CN
+  * i18n: Translate update_en.ts in zh_HK
+  * i18n: Translate update_en.ts in sq
+  * i18n: Translate update_en.ts in es
+  * i18n: Translate update_en.ts in fi
+  * i18n: Translate update_en.ts in fr
+  * i18n: Translate update_en.ts in ca
+  * fix: adjust widget size after update completion
+  * fix: update testing channel description text
+
+ -- zhangkun <zhangkun2@uniontech.com>  Thu, 14 Aug 2025 20:42:50 +0800
+
+deepin-update-ui (1.0.23) unstable; urgency=medium
+
+  * i18n: Updates for project Deepin Desktop Environment (#148)
+
+ -- wujiangyu <wujiangyu@uniontech.com>  Tue, 12 Aug 2025 10:40:04 +0800
+
+deepin-update-ui (1.0.22) unstable; urgency=medium
+
+  * refactor: migrate update log monitoring to DBus interface
+  * fix: improve update widget layout and button behavior
+  * fix: use DStandardPaths for home directory lookup
+  * refactor: improve button management and focus handling in recovery
+    dialog
+  * fix: set focus on upgrade button in UpdateSelectDialog
+
+ -- WuJiangYu <wujiangyu@uniontech.com>  Fri, 01 Aug 2025 10:25:25 +0800
+
+deepin-update-ui (1.0.21) unstable; urgency=medium
+
+  * [dde-update-ui] Updates for project Deepin Desktop Environment
+    (#143)
+  * feat: add battery check before system updates
+
+ -- WuJiangYu <wujiangyu@uniontech.com>  Thu, 10 Jul 2025 20:15:41 +0800
+
+deepin-update-ui (1.0.20) unstable; urgency=medium
+
+  * refactor: optimize build system security flags
+  * i18n: Updates for project Deepin Desktop Environment (#139)
+  * fix: replace SVG icons with DCI icons in update plugin
+  * i18n: Updates for project Deepin Desktop Environment (#136)
+  * fix: update control and list visibility improvements
+  * fix: adjust UI layout and translation settings
+
+ -- WuJiangYu <wujiangyu@uniontech.com>  Thu, 03 Jul 2025 19:55:20 +0800
+
+deepin-update-ui (1.0.19) unstable; urgency=medium
+
+  * [dde-update-ui] Updates for project Deepin Desktop Environment
+    (#133)
+
+ -- xionglinlin <xionglinlin@uniontech.com>  Fri, 27 Jun 2025 10:34:38 +0800
+
+deepin-update-ui (1.0.18) unstable; urgency=medium
+
+  * chore: remove unused Spanish (Mexico) translation files
+  * i18n: Updates for project Deepin Desktop Environment (#130)
+
+ -- xionglinlin <xionglinlin@uniontech.com>  Mon, 23 Jun 2025 16:42:41 +0800
+
+deepin-update-ui (1.0.17) unstable; urgency=medium
+
+  * [dde-update-ui] Updates for project Deepin Desktop Environment
+    (#127)
+  * fix: improve update dialog UI and controls
+  * i18n: Updates for project Deepin Desktop Environment (#126)
+
+ -- xionglinlin <xionglinlin@uniontech.com>  Fri, 20 Jun 2025 17:25:01 +0800
+
+deepin-update-ui (1.0.16) unstable; urgency=medium
+
+  * i18n: Translate update_en.ts in pl
+  * i18n: Translate update_en.ts in zh_CN
+  * feat: Prohibit checking for updates when automatic restore is
+    enabled
+  * i18n: Translate update_en.ts in ca
+  * feat: adapt to automatic rollback
+  * [dde-update-ui] Updates for project Deepin Desktop Environment
+    (#118)
+  * feat: improve update log dialog and notifications
+  * [dde-update-ui] Updates for project Deepin Desktop Environment
+    (#116)
+  * fix: enhance update list display and version info
+  * [dde-update-ui] Updates for project Deepin Desktop Environment
+    (#115)
+  * [dde-update-ui] Updates for project Deepin Desktop Environment
+    (#113)
+  * i18n: Updates for project Deepin Desktop Environment (#112)
+
+ -- zhangkun <zhangkun2@uniontech.com>  Thu, 19 Jun 2025 09:51:05 +0800
+
+deepin-update-ui (1.0.15) unstable; urgency=medium
+
+  * i18n: Translate dde-update_en.ts in es
+  * i18n: Translate dde-update_en.ts in az
+  * i18n: Translate dde-update_en.ts in nl
+  * i18n: Translate dde-update_en.ts in tr
+  * i18n: Translate dde-update_en.ts in sq
+  * i18n: Translate dde-update_en.ts in bo
+  * i18n: Translate update_en.ts in uk
+  * i18n: Translate dde-update_en.ts in pt_BR
+  * i18n: Translate dde-update_en.ts in hu
+  * i18n: Translate dde-update_en.ts in zh_HK
+  * i18n: Translate dde-update_en.ts in ug
+  * i18n: Translate dde-update_en.ts in en_US
+  * i18n: Translate dde-update_en.ts in ru
+  * i18n: Translate update_en.ts in ja
+  * i18n: Translate update_en.ts in zh_TW
+  * i18n: Translate dde-update_en.ts in it
+  * i18n: Translate dde-update_en.ts in uk
+  * i18n: Translate dde-update_en.ts in zh_CN
+  * i18n: Translate dde-update_en.ts in lt
+  * i18n: Translate dde-update_en.ts in de_DE
+  * i18n: Translate dde-update_en.ts in pl
+  * i18n: Translate dde-update_en.ts in zh_TW
+  * i18n: Translate dde-update_en.ts in ja
+  * i18n: Translate update_en.ts in nl
+  * i18n: Translate update_en.ts in zh_HK
+  * i18n: Translate update_en.ts in pt_BR
+  * i18n: Translate update_en.ts in de_DE
+  * i18n: Translate update_en.ts in zh_CN
+  * i18n: Translate update_en.ts in sq
+  * i18n: Translate update_en.ts in pl
+  * i18n: Translate update_en.ts in es
+  * i18n: Translate update_en.ts in fi
+  * i18n: Translate update_en.ts in ca
+  * feat: update translations
+  * feat: Enhance update log functionality and interface
+  * feat: add update log monitoring and export functionality
+  * style: Standardize changelog and control files
+  * fix: correct BusyIndicator running state in UpdateControl
+  * i18n: Translate update_en.ts in es
+  * i18n: Translate update_en.ts in es
+  * i18n: Translate update_en.ts in pt_BR
+  * i18n: Translate update_en.ts in sq
+  * fix: Update backup status handling and error analysis logic
+  * i18n: Translate update_en.ts in ja (#100)
+
+ -- zhangkun <zhangkun2@uniontech.com>  Thu, 12 Jun 2025 21:18:34 +0800
+
+deepin-update-ui (1.0.14) unstable; urgency=medium
+
+  * feat: add download control
+  * i18n: Updates for project Deepin Desktop Environment (#98)
+  * i18n: Updates for project Deepin Desktop Environment (#97)
+
+ -- zhangkun <zhangkun2@uniontech.com>  Fri, 06 Jun 2025 11:01:25 +0800
+
+deepin-update-ui (1.0.13) unstable; urgency=medium
+
+  * i18n: Translate update_en.ts in de_DE
+  * fix: change update mode types from int to quint64
+  * fix: update lastore config paths to new dde namespace
+  * i18n: Updates for project Deepin Desktop Environment (#92)
+  * i18n: Translate update_en.ts in zh_CN (#91)
+  * [dde-update-ui] Updates for project Deepin Desktop Environment (#89)
+  * chore: fix compilation warnings
+  * feat: add modal update
+  * [dde-update-ui] Updates for project Deepin Desktop Environment (#88)
+  * [dde-update-ui] Updates for project Deepin Desktop Environment (#86)
+  * fix: enable clear button in download speed limit input
+  * fix: update system update icon and speed limit input
+  * fix: use DccTimeRange component instead of SpinBox
+  * fix: improve update status handling and UI logic
+  * i18n: Translate update_en.ts in pt_BR
+  * fix: improve update module state management
+
+ -- xionglinlin <xionglinlin@uniontech.com>  Thu, 29 May 2025 16:59:19 +0800
+
+deepin-update-ui (1.0.12) unstable; urgency=medium
+
+  * feat: add deepin logo support for community edition
+  * i18n: Updates for project Deepin Desktop Environment (#74)
+  * fix: update translation
+  * fix: update privacy policy URL handling logic
+  * fix: improve update checking mechanism and activation state
+  * fix: modify the prompt text for the internal test channel
+
+ -- YeShanShan <yeshanshan@uniontech.com>  Tue, 20 May 2025 19:45:30 +0800
+
+deepin-update-ui (1.0.11) unstable; urgency=medium
+
+  * fix: security updates toggle for community systems is avaliable
+  * fix: The switch updated by third-party sources has been reset
+
+ -- lvpeilong <lvpeilong@uniontech.com>  Fri, 16 May 2025 16:51:49 +0800
+
+deepin-update-ui (1.0.10) unstable; urgency=medium
+
+  * Release 1.0.10
+
+ -- YeShanShan <yeshanshan@uniontech.com>  Fri, 16 May 2025 11:23:48 +0800
+
+deepin-update-ui (1.0.9) unstable; urgency=medium
+
+  * fix: updates cannot be detected When all update models are disabled
+  * fix: optimize the logic of disable and enable system updates
+  * fix: fixed the issue with ui font display
+  * fix: update control improvements for battery and disabled states
+
+ -- xionglinlin <xionglinlin@uniontech.com>  Thu, 15 May 2025 21:41:12 +0800
+
+deepin-update-ui (1.0.8) unstable; urgency=medium
+
+  * fix: no message when the battery is less than 60% charged
+  * i18n: Translate update_en.ts in ca
+  * i18n: Translate update_en.ts in zh_CN
+  * i18n: Translate update_en.ts in zh_HK
+  * i18n: Translate update_en.ts in zh_TW
+  * i18n: Translate update_en.ts in uk
+  * i18n: Translate update_en.ts in zh_CN
+  * i18n: Translate update_en.ts in zh_TW
+  * i18n: Translate update_en.ts in sq
+  * i18n: Translate update_en.ts in de_DE
+  * i18n: Translate update_en.ts in pl
+  * i18n: Translate update_en.ts in nl
+  * i18n: Translate update_en.ts in es
+  * i18n: Translate update_en.ts in zh_HK
+  * i18n: Translate update_en.ts in pt_BR
+  * i18n: Translate update_en.ts in fi
+  * i18n: Translate update_en.ts in ca
+  * fix: No history update viewing functionality
+  * i18n: Translate update_en.ts in es
+  * [dde-update-ui] Updates for project Deepin Desktop Environment (#52)
+  * fix: disable system updates by reading the lastore configuration
+  * i18n: Updates for project Deepin Desktop Environment (#47)
+
+ -- YeShanShan <yeshanshan@uniontech.com>  Tue, 13 May 2025 20:53:56 +0800
+
+deepin-update-ui (1.0.7) unstable; urgency=medium
+
+  * fix: installation status optimization
+  * fix: Not displaying the version and time of the last backup
+  * fix: download status optimization
+  * i18n: Updates for project Deepin Desktop Environment (#45)
+  * feat: support continuous updates when backup fails
+  * style: adjust the code structure
+  * fix: Advanced settings default expansion
+  * fix: improve DConfigWatcher thread safety and connection
+  * feat: update translations
+  * feat: add update module with privacy agreement and UI improvements
+
+ -- YeShanShan <yeshanshan@uniontech.com>  Thu, 08 May 2025 21:43:04 +0800
+
+deepin-update-ui (1.0.6) unstable; urgency=medium
+
+  * [dde-update-ui] Updates for project Deepin Desktop Environment (#32)
+  * fix: check for updates by default every 24 hours
+  * fix: disable automatic update check within 24 hours
+  * feat: update translations
+  * feat: add testing channel setting
+
+ -- YeShanShan <yeshanshan@uniontech.com>  Tue, 29 Apr 2025 10:58:00 +0800
+
+deepin-update-ui (1.0.5) unstable; urgency=medium
+
+  * [dde-update-ui] Updates for project Deepin Desktop Environment (#20)
+  * feat: Provide a notification of backup failure
+  * fix: The checkbox doesn't respond when clicked
+  * chore(license): Organizing licenses and copyrights
+  * feat: block the update settings
+  * feat: Clear QML cache after installation
+  * feat: use dbus-send instead of qdbus
+  * feat: optimize the code structure
+  * feat: add lock service dbus interface
+  * feat: update translations
+  * feat: adapt to translation platforms
+
+ -- zhangkun <zhangkun2@uniontech.com>  Tue, 22 Apr 2025 15:42:52 +0800
+
+deepin-update-ui (1.0.4) unstable; urgency=medium
+
+  * chore: remove unnecessary dependencies
+
+ -- zhangkun <zhangkun2@uniontech.com>  Thu, 17 Apr 2025 21:48:42 +0800
+
+deepin-update-ui (1.0.3) unstable; urgency=medium
+
+  * fix: miss dependencies: libdtkwidget-dev
+  * fix: the download package size shows 0
+
+ -- zhangkun <zhangkun2@uniontech.com>  Thu, 17 Apr 2025 21:45:42 +0800
+
+deepin-update-ui (1.0.2) unstable; urgency=medium
+
+  * feat: add update back up
+
+ -- zhangkun <zhangkun2@uniontech.com>  Thu, 17 Apr 2025 21:30:52 +0800
+
+deepin-update-ui (1.0.1) unstable; urgency=medium
+
+  * release 1.0.1
+
+ -- xionglinlin <xionglinlin@uniontech.com>  Thu, 10 Apr 2025 17:28:42 +0800
+
+deepin-update-ui (1.0.0) unstable; urgency=medium
+
+  * Autobuild Tag 1.0.0
+
+ -- YinJie <yinjie@uniontech.com>  Wed, 13 Dec 2023 15:59:16 +0800

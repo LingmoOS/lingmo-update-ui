@@ -1,0 +1,83 @@
+{
+    "magic": "dsg.config.meta",
+    "version": "1.0",
+    "contents": {
+        "updateSafety": {
+            "value": "Enabled",
+            "serial": 0,
+            "flags": [],
+            "name": "update_safety",
+            "name[zh_CN]": "更新设置页面安全更新配置",
+            "description[zh_CN]": "如果启用该配置，安全更新将可用；如果禁用该配置，安全更新将置灰；如果隐藏该配置，安全更新将隐藏。",
+            "description": "",
+            "permissions": "readwrite",
+            "visibility": "private"
+        },
+        "updateAutoInstall": {
+            "value": "Enabled",
+            "serial": 0,
+            "flags": [],
+            "name": "update_auto_install",
+            "name[zh_CN]": "更新设置页面自动安装配置",
+            "description[zh_CN]": "如果启用该配置，自动安装将可用；如果禁用该配置，自动安装将置灰；如果隐藏该配置，自动安装将隐藏。",
+            "description": "",
+            "permissions": "readwrite",
+            "visibility": "private"
+        },
+        "updateThirdPartySource": {
+            "value": "Hidden",
+            "serial": 0,
+            "flags": ["global"],
+            "name": "update_third_party_srouce",
+            "name[zh_CN]": "更新设置是否显示第三方仓库开关",
+            "description[zh_CN]": "如果Enabled，显示第三方仓库开关；如果Disabled，第三方仓库开关将置灰；如果Hidden该配置，请先将第三方仓库开关关闭，第三方仓库开关将隐藏。此配置仅在专业版生效。",
+            "description": "",
+            "permissions": "readwrite",
+            "visibility": "private"
+        },
+        "updateLogAddress": {
+            "value": "https://update-platform.uniontech.com/api/v1/systemupdatelogs",
+            "serial": 0,
+            "flags": ["global"],
+            "name": "Update log api address",
+            "name[zh_CN]": "更新日志地址",
+            "description[zh_CN]": "获取更新日志的地址",
+            "description": "",
+            "permissions": "readonly",
+            "visibility": "private"
+        },
+        "updateHistoryEnabled": {
+            "value": "Enabled",
+            "serial": 0,
+            "flags": [],
+            "name": "Update history enabled",
+            "name[zh_CN]": "启用历史更新记录功能",
+            "description[zh_CN]": "控制中心-更新-更新设置-历史更新记录显示状态。如果值为Enabled，则正常显示\n 如果值为Disabled，按钮将置灰\n 如果值为Hidden，历史更新栏目将隐藏。\n 默认值为 Enabled",
+            "description": "",
+            "permissions": "readwrite",
+            "visibility": "private"
+        },
+        "p2pUpdateEnabled": {
+            "value": "Hidden",
+            "serial": 0,
+            "flags": ["global"],
+            "name": "P2P update enabled",
+            "name[zh_CN]": "是否显示p2p更新",
+            "description[zh_CN]": "控制中心-更新-更新设置页面是否显示缓存传递设置项。如果值为Enabled，则正常显示\n 如果值为Disabled，按钮将置灰\n 如果值为Hidden，缓存传递设置项将隐藏。\n 默认值为 Enabled",
+            "description": "",
+            "permissions": "readwrite",
+            "visibility": "private"
+        },
+        "showVersion": {
+            "value": "version",
+            "serial": 0,
+            "flags": ["global"],
+            "name": "show version",
+            "name[zh_CN]": "显示的版本",
+            "description[zh_CN]": "显示的版本",
+            "description": "",
+            "permissions": "readwrite",
+            "visibility": "private"
+        }
+    }
+}
