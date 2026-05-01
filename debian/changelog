@@ -1,3 +1,9 @@
+lingmo-update-ui (1.0.50.lingmo.1) unstable; urgency=medium
+
+  * new release for Lingmo OS.
+
+ -- Lingmo OS Team <team@lingmo.org>  Fri, 01 May 2026 21:14:00 +0800
+
 deepin-update-ui (1.0.49) unstable; urgency=medium
 
   * feat: add update detail expansion and fix version display
