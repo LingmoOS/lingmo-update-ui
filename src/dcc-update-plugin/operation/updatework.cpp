@@ -10,6 +10,7 @@
 
 #include <QDBusError>
 #include <QDesktopServices>
+#include <QFile>
 #include <QFuture>
 #include <QFutureWatcher>
 #include <QJsonArray>
@@ -17,6 +18,7 @@
 #include <QMutexLocker>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
+#include <QTextStream>
 #include <QVariant>
 #include <QtConcurrent>
 #include <QLoggingCategory>
@@ -160,10 +162,11 @@ UpdateWorker::~UpdateWorker()
 void UpdateWorker::initConnect()
 {
     qCDebug(logDccUpdatePlugin) << "Setting up DBus connections and signals";
-    QDBusConnection::systemBus().connect("com.deepin.license", 
-                                         "/com/deepin/license/Info", 
-                                         "com.deepin.license.Info", 
-                                         "LicenseStateChange", this, SLOT(onLicenseStateChange()));
+    // 注释掉 license D-Bus 信号连接，改用本地判断逻辑
+    // QDBusConnection::systemBus().connect("com.deepin.license",
+    //                                      "/com/deepin/license/Info",
+    //                                      "com.deepin.license.Info",
+    //                                      "LicenseStateChange", this, SLOT(onLicenseStateChange()));
 
     connect(m_updateInter, &UpdateDBusProxy::BatteryPercentageChanged, this, &UpdateWorker::onPowerChange);
     connect(m_updateInter, &UpdateDBusProxy::OnBatteryChanged, this, &UpdateWorker::onPowerChange);
@@ -306,18 +309,30 @@ void UpdateWorker::getLicenseState()
         return;
     }
 
-    QDBusInterface licenseInfo("com.deepin.license",
-                               "/com/deepin/license/Info",
-                               "com.deepin.license.Info",
-                               QDBusConnection::systemBus());
-    if (!licenseInfo.isValid()) {
-        qCWarning(logDccUpdatePlugin) << "License info dbus is invalid.";
-        return;
+    // 使用本地判断逻辑：检查 /etc/os-release 中的 ID 是否为 lingmo，以及 /system/.version 是否存在
+    bool isLingmo = false;
+    QFile osRelease("/etc/os-release");
+    if (osRelease.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QTextStream in(&osRelease);
+        while (!in.atEnd()) {
+            QString line = in.readLine();
+            if (line.startsWith("ID=")) {
+                QString id = line.mid(3).trimmed();
+                if (id.startsWith('"') && id.endsWith('"'))
+                    id = id.mid(1, id.length() - 2);
+                else if (id.startsWith('\'') && id.endsWith('\''))
+                    id = id.mid(1, id.length() - 2);
+                if (id == "lingmo") {
+                    isLingmo = QFile::exists("/system/.version");
+                }
+                break;
+            }
+        }
+        osRelease.close();
     }
-    UiActiveState reply = static_cast<UiActiveState>(licenseInfo.property("AuthorizationState").toInt());
-    const auto isActivated = reply == UiActiveState::Authorized || reply == UiActiveState::TrialAuthorized;
-    qCDebug(logDccUpdatePlugin) << "System activation state:" << isActivated;
-    m_model->setSystemActivation(isActivated);
+
+    qCDebug(logDccUpdatePlugin) << "System activation state (local check):" << isLingmo;
+    m_model->setSystemActivation(isLingmo);
 }
 
 bool UpdateWorker::checkDbusIsValid()
