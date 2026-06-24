@@ -176,6 +176,26 @@
         <translation>更多详情请访问</translation>
         <extra-content_explain>这句话后面会带上一个超链接，各语言自行决定末尾需不需要加空格</extra-content_explain>
     </message>
+    <message>
+        <source>Regular system update</source>
+        <translation>常规系统更新</translation>
+    </message>
+    <message>
+        <source>Regular security update</source>
+        <translation>常规安全更新</translation>
+    </message>
+    <message>
+        <source>Regular third-party software update</source>
+        <translation>常规软件更新</translation>
+    </message>
+    <message>
+        <source>Optimize system functions and improve system security</source>
+        <translation>优化系统功能，提升系统安全性</translation>
+    </message>
+    <message>
+        <source>Update service not available, please check if lastore-daemon is installed and running</source>
+        <translation>更新服务不可用，请检查更新守护进程是否已安装并运行</translation>
+    </message>
 </context>
 <context>
     <name>UpdateMain</name>

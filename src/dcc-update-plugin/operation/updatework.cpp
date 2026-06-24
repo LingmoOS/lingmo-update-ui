@@ -184,6 +184,12 @@ void UpdateWorker::initConnect()
     connect(m_updateInter, &UpdateDBusProxy::AutoCleanChanged, m_model, &UpdateModel::setAutoCleanCache);
     connect(m_updateInter, &UpdateDBusProxy::AutoDownloadUpdatesChanged, m_model, &UpdateModel::setAutoDownloadUpdates);
     connect(m_updateInter, &UpdateDBusProxy::MirrorSourceChanged, m_model, &UpdateModel::setDefaultMirror);
+    connect(m_updateInter, &UpdateDBusProxy::managerInterServiceValidChanged, this, [this](bool valid) {
+        if (valid) {
+            qCInfo(logDccUpdatePlugin) << "Lastore daemon became available, triggering check";
+            checkNeedDoUpdates();
+        }
+    });
     if (IsCommunitySystem) {
         connect(m_updateInter, &UpdateDBusProxy::EnableChanged, m_model, &UpdateModel::setSmartMirrorSwitch);
     }
@@ -223,6 +229,16 @@ void UpdateWorker::activate()
     updateSystemVersion();
     refreshLastTimeAndCheckCircle();
     initTestingChannel();
+
+    if (!m_updateInter->managerInterIsValid()) {
+        qCWarning(logDccUpdatePlugin) << "Lastore daemon D-Bus service not available, skip D-Bus initialization";
+        m_model->setCheckUpdateStatus(CheckingFailed);
+        m_model->setCheckUpdateErrTips(tr("Update service not available, please check if lastore-daemon is installed and running"));
+        QTimer::singleShot(0, this, [this]() {
+            m_logWatcherHelper->startWatchFile();
+        });
+        return;
+    }
 
     m_model->setUpdateMode(m_updateInter->updateMode());
     m_model->setCheckUpdateMode(m_updateInter->checkUpdateMode());
@@ -435,6 +451,15 @@ void UpdateWorker::checkNeedDoUpdates()
         return;
     }
 
+    // 如果 lastore 服务不可用，直接显示错误，不继续检查
+    if (!m_updateInter->managerInterIsValid()) {
+        qCWarning(logDccUpdatePlugin) << "Lastore daemon D-Bus service not available, skip check";
+        m_model->setShowCheckUpdate(true);
+        m_model->setCheckUpdateStatus(CheckingFailed);
+        m_model->setCheckUpdateErrTips(tr("Update service not available, please check if lastore-daemon is installed and running"));
+        return;
+    }
+
     // 如果当前正在检查更新，则不再检查
     if (m_doCheckUpdates) {
         qCDebug(logDccUpdatePlugin) << "Is doing check updates";
@@ -484,6 +509,15 @@ void UpdateWorker::doCheckUpdates()
         || allUpdateStatuses.contains(DownloadPaused)) {
         qCInfo(logDccUpdatePlugin) << "Lastore daemon is busy now, current statuses:" << allUpdateStatuses;
         m_model->setShowCheckUpdate(false);
+        return;
+    }
+
+    // 检查 lastore-daemon D-Bus 服务是否可用
+    if (!m_updateInter->managerInterIsValid()) {
+        qCWarning(logDccUpdatePlugin) << "Lastore daemon D-Bus service not available";
+        m_model->setLastStatus(UpdatesStatus::CheckingFailed, __LINE__);
+        m_model->setCheckUpdateStatus(CheckingFailed);
+        m_model->setCheckUpdateErrTips(tr("Update service not available, please check if lastore-daemon is installed and running"));
         return;
     }
 
@@ -567,6 +601,35 @@ void UpdateWorker::setUpdateInfo()
     m_model->refreshUpdateStatus();
     m_model->updateAvailableState();
     m_model->setLastStatus(isUpdated ? Updated : UpdatesAvailable, __LINE__);
+}
+
+void UpdateWorker::setFixedUpdateLogText()
+{
+    qCDebug(logDccUpdatePlugin) << "Setting fixed update log text (no server)";
+    auto resultMap = m_model->getAllUpdateInfos();
+    bool hasSystem = resultMap.contains(SystemUpdate) && resultMap[SystemUpdate]->isUpdateAvailable();
+    bool hasSecurity = resultMap.contains(SecurityUpdate) && resultMap[SecurityUpdate]->isUpdateAvailable();
+    bool hasThirdParty = resultMap.contains(UnknownUpdate) && resultMap[UnknownUpdate]->isUpdateAvailable();
+
+    static const QString systemText = tr("Regular system update");
+    static const QString securityText = tr("Regular security update");
+    static const QString thirdPartyText = tr("Regular third-party software update");
+    static const QString combinedText = tr("Optimize system functions and improve system security");
+
+    if (hasSystem && hasSecurity) {
+        // 系统+安全（不论是否有第三方）→ 统一使用合并文本
+        for (auto info : resultMap.values()) {
+            if (info->isUpdateAvailable())
+                info->setExplain(combinedText);
+        }
+    } else {
+        if (hasSystem)
+            resultMap[SystemUpdate]->setExplain(systemText);
+        if (hasSecurity)
+            resultMap[SecurityUpdate]->setExplain(securityText);
+        if (hasThirdParty)
+            resultMap[UnknownUpdate]->setExplain(thirdPartyText);
+    }
 }
 
 /**
@@ -1582,23 +1645,10 @@ void UpdateWorker::onCheckUpdateStatusChanged(const QString& value)
             m_doCheckUpdates = false;
         }
     } else if (value == "success" || value == "succeed") {
-        auto watcher = new QDBusPendingCallWatcher(m_updateInter->GetUpdateLogs(SystemUpdate | SecurityUpdate), this);
-        connect(watcher, &QDBusPendingCallWatcher::finished, [this, watcher] {
-            if (!watcher->isError()) {
-                QDBusPendingReply<QString> reply = watcher->reply();
-                UpdateLogHelper::ref().handleUpdateLog(reply.value());
-                auto resultMap = m_model->getAllUpdateInfos();
-                for (UpdateType type : resultMap.keys()) {
-                    UpdateLogHelper::ref().updateItemInfo(resultMap.value(type));
-                }
-                m_model->refreshUpdateUiModel();
-            } else {
-                qCWarning(logDccUpdatePlugin) << "Get update log failed";
-            }
-            watcher->deleteLater();
-            // 日志处理完了再显示更新内容界面
-        });
         setUpdateInfo();
+        // 使用固定文本替代服务器获取的更新日志
+        setFixedUpdateLogText();
+        m_model->refreshUpdateUiModel();
         m_model->setShowCheckUpdate(!m_model->isUpdatable());
     } else if (value == "end") {
         refreshLastTimeAndCheckCircle();

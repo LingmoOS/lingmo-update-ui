@@ -41,6 +41,7 @@ public:
     void createCheckUpdateJob(const QString& jobPath);
     void refreshLastTimeAndCheckCircle();
     void setUpdateInfo();
+    void setFixedUpdateLogText();
     QMap<UpdateType, UpdateItemInfo*> getAllUpdateInfo(const QMap<QString, QStringList>& updatePackages);
     void setUpdateItemDownloadSize(UpdateItemInfo* updateItem);
 
