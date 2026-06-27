@@ -512,17 +512,10 @@ void UpdateWorker::doCheckUpdates()
         return;
     }
 
-    // 检查 lastore-daemon D-Bus 服务是否可用
-    if (!m_updateInter->managerInterIsValid()) {
-        qCWarning(logDccUpdatePlugin) << "Lastore daemon D-Bus service not available";
-        m_model->setLastStatus(UpdatesStatus::CheckingFailed, __LINE__);
-        m_model->setCheckUpdateStatus(CheckingFailed);
-        m_model->setCheckUpdateErrTips(tr("Update service not available, please check if lastore-daemon is installed and running"));
-        return;
-    }
-
     m_model->resetDownloadInfo(); // 在检查更新前重置数据，避免有上次检查的数据残留
 
+    // 立即显示检查中状态，给用户点击反馈
+    m_model->setCheckUpdateStatus(Checking);
     m_doCheckUpdates = true;
     QDBusPendingCall call = m_updateInter->UpdateSource();
     QDBusPendingCallWatcher* watcher = new QDBusPendingCallWatcher(call, this);
@@ -531,6 +524,13 @@ void UpdateWorker::doCheckUpdates()
         if (reply.isError()) {
             qCWarning(logDccUpdatePlugin) << "Check update failed, error: " << reply.error().message();
             m_model->setLastStatus(UpdatesStatus::CheckingFailed, __LINE__);
+            // 服务不可用时显示友好提示，而非原始 D-Bus 错误
+            const QString errMsg = reply.error().message();
+            if (errMsg.contains("not registered", Qt::CaseInsensitive)
+                || errMsg.contains("not available", Qt::CaseInsensitive)
+                || errMsg.contains("No such interface", Qt::CaseInsensitive)) {
+                m_model->setCheckUpdateErrTips(tr("Update service not available, please check if lastore-daemon is installed and running"));
+            }
             m_model->setCheckUpdateStatus(CheckingFailed);
             cleanLaStoreJob(m_checkUpdateJob);
             m_doCheckUpdates = false;
