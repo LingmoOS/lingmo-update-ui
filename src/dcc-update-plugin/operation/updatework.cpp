@@ -1769,6 +1769,7 @@ void UpdateWorker::onCheckUpdateStatusChanged(const QString& value)
                 auto *item = infos[SystemUpdate];
                 item->setName(m_httpUpdateVersion);
                 item->setExplain(tr("System upgrade to %1").arg(m_httpUpdateVersion));
+                item->setUpdateStatus(UpdatesAvailable);
             } else {
                 // No apt packages but server says update available — create a synthetic item
                 auto *item = new UpdateItemInfo(SystemUpdate);

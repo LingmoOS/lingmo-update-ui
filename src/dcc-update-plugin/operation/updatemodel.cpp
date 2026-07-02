@@ -309,6 +309,7 @@ void UpdateModel::updateCheckUpdateUi()
             qCDebug(logDccUpdatePlugin) << "Setting UI for UpdatesAvailable status";
             setCheckBtnText(tr("Check Again"));
             setCheckUpdateIcon("update_installing");
+            setCheckUpdateErrTips(tr("Updates are ready to install"));
             break;
         default:
             qCDebug(logDccUpdatePlugin) << "Unknown status in switch, clearing text";

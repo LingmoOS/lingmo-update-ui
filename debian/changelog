@@ -1,3 +1,10 @@
+lingmo-update-ui (1.0.59.lingmo.1) unstable; urgency=medium
+
+  * fix: apt 成功但 HTTP 有更新时，已有 SystemUpdate item 未设 status 为 UpdatesAvailable，导致列表为空
+  * fix: UpdatesAvailable 状态未清除 errTips，残留 "正在检查更新，请稍等"
+
+ -- Lingmo OS Team <team@lingmo.org>  Fri, 03 Jul 2026 00:08:00 +0800
+
 lingmo-update-ui (1.0.58.lingmo.1) unstable; urgency=medium
 
   * feat: 更新检查改为 HTTP API（GET /api/v1/update/check），build/arch/channel/locale
