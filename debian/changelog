@@ -1,3 +1,10 @@
+lingmo-update-ui (1.0.61.lingmo.1) unstable; urgency=medium
+
+  * fix: HTTP 有更新时设置 isUpdatable=true，修复页面切换后 CheckUpdate 页面重新显示的问题
+  * refactor: 移除冗余的 setShowCheckUpdate(false) 强制覆盖
+
+ -- Lingmo OS Team <team@lingmo.org>  Fri, 03 Jul 2026 00:55:00 +0800
+
 lingmo-update-ui (1.0.60.lingmo.1) unstable; urgency=medium
 
   * fix: 移除 UpdatesAvailable 分支自定义 errTips 文本，还原原生 UI 样式

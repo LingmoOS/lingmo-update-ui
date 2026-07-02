@@ -1740,6 +1740,7 @@ void UpdateWorker::onCheckUpdateStatusChanged(const QString& value)
             m_model->setLastError(CheckingFailed, analyzeJobErrorMessage(description, CheckingFailed));
             if (m_httpUpdateAvailable && !m_httpUpdateVersion.isEmpty()) {
                 // Apt failed but HTTP says update available — create synthetic item
+                m_model->setIsUpdatable(true);
                 auto *item = new UpdateItemInfo(SystemUpdate);
                 item->setName(m_httpUpdateVersion);
                 item->setExplain(tr("System upgrade to %1").arg(m_httpUpdateVersion));
@@ -1750,7 +1751,6 @@ void UpdateWorker::onCheckUpdateStatusChanged(const QString& value)
                 m_model->refreshUpdateUiModel();
                 m_model->setLastStatus(UpdatesAvailable, __LINE__);
                 m_model->setCheckUpdateStatus(UpdatesAvailable);
-                m_model->setShowCheckUpdate(false);
             } else {
                 m_model->setLastStatus(CheckingFailed, __LINE__);
                 m_model->setCheckUpdateStatus(CheckingFailed);
@@ -1765,6 +1765,7 @@ void UpdateWorker::onCheckUpdateStatusChanged(const QString& value)
         auto infos = m_model->getAllUpdateInfos();
         if (m_httpUpdateAvailable && !m_httpUpdateVersion.isEmpty()) {
             // System update from server: label it as the new OS version
+            m_model->setIsUpdatable(true);
             if (infos.contains(SystemUpdate)) {
                 auto *item = infos[SystemUpdate];
                 item->setName(m_httpUpdateVersion);
@@ -1793,10 +1794,6 @@ void UpdateWorker::onCheckUpdateStatusChanged(const QString& value)
         setFixedUpdateLogText();
         m_model->refreshUpdateUiModel();
         m_model->setShowCheckUpdate(!m_model->isUpdatable());
-        // Force show update list when HTTP announces a system update
-        if (m_httpUpdateAvailable && !m_httpUpdateVersion.isEmpty()) {
-            m_model->setShowCheckUpdate(false);
-        }
     } else if (value == "end") {
         refreshLastTimeAndCheckCircle();
         // Use http-derived status to decide what to show
