@@ -565,7 +565,19 @@ void UpdateWorker::doCheckUpdates()
         // -- Step 2: Apt-based check (always run) --
         if (!m_updateInter->managerInterIsValid()) {
             qCWarning(logDccUpdatePlugin) << "Lastore D-Bus unavailable, skip apt check";
-            if (!m_httpUpdateAvailable) {
+            if (m_httpUpdateAvailable && !m_httpUpdateVersion.isEmpty()) {
+                auto *item = new UpdateItemInfo(SystemUpdate);
+                item->setName(m_httpUpdateVersion);
+                item->setExplain(tr("System upgrade to %1").arg(m_httpUpdateVersion));
+                item->setTypeString(SYSTEM_UPGRADE_TYPE_STRING);
+                item->setUpdateModeEnabled(m_model->updateMode() & UpdateType::SystemUpdate);
+                item->setUpdateStatus(UpdatesAvailable);
+                m_model->addUpdateInfo(item);
+                m_model->refreshUpdateUiModel();
+                m_model->setLastStatus(UpdatesAvailable, __LINE__);
+                m_model->setCheckUpdateStatus(UpdatesAvailable);
+                m_model->setShowCheckUpdate(false);
+            } else {
                 m_model->setCheckUpdateStatus(CheckingFailed);
                 m_model->setCheckUpdateErrTips(
                     tr("Update service not available, please check if lastore-daemon is installed and running"));
@@ -582,7 +594,19 @@ void UpdateWorker::doCheckUpdates()
             QDBusPendingReply<QDBusObjectPath> reply = *watcher;
             if (reply.isError()) {
                 qCWarning(logDccUpdatePlugin) << "Apt check D-Bus error:" << reply.error().message();
-                if (!m_httpUpdateAvailable) {
+                if (m_httpUpdateAvailable && !m_httpUpdateVersion.isEmpty()) {
+                    auto *item = new UpdateItemInfo(SystemUpdate);
+                    item->setName(m_httpUpdateVersion);
+                    item->setExplain(tr("System upgrade to %1").arg(m_httpUpdateVersion));
+                    item->setTypeString(SYSTEM_UPGRADE_TYPE_STRING);
+                    item->setUpdateModeEnabled(m_model->updateMode() & UpdateType::SystemUpdate);
+                    item->setUpdateStatus(UpdatesAvailable);
+                    m_model->addUpdateInfo(item);
+                    m_model->refreshUpdateUiModel();
+                    m_model->setLastStatus(UpdatesAvailable, __LINE__);
+                    m_model->setCheckUpdateStatus(UpdatesAvailable);
+                    m_model->setShowCheckUpdate(false);
+                } else {
                     m_model->setCheckUpdateStatus(CheckingFailed);
                     m_model->setCheckUpdateErrTips(
                         tr("Update service not available, please check network connection"));
