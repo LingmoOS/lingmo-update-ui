@@ -554,7 +554,7 @@ void UpdateWorker::doCheckUpdates()
             if (!doc.isNull() && doc.isObject()) {
                 QJsonObject obj = doc.object();
                 m_httpUpdateAvailable = obj.value("updateAvailable").toBool(false);
-                m_httpUpdateVersion = obj.value("version").toString();
+                m_httpUpdateVersion = obj.value("latest").toObject().value("version").toString();
             }
         } else {
             qCWarning(logDccUpdatePlugin) << "HTTP check failed, falling back to apt only:" << reply->errorString();

@@ -1,3 +1,11 @@
+lingmo-update-ui (1.0.62.lingmo.1) unstable; urgency=medium
+
+  * fix: JSON 解析 path 错误，version 在 latest 对象内而非顶层，导致 m_httpUpdateVersion 始终为空
+  * fix: HTTP 有更新时设置 isUpdatable=true，修复页面切换后 CheckUpdate 页面重新显示的问题
+  * refactor: 移除冗余的 setShowCheckUpdate(false) 强制覆盖
+
+ -- Lingmo OS Team <team@lingmo.org>  Fri, 03 Jul 2026 01:05:00 +0800
+
 lingmo-update-ui (1.0.61.lingmo.1) unstable; urgency=medium
 
   * fix: HTTP 有更新时设置 isUpdatable=true，修复页面切换后 CheckUpdate 页面重新显示的问题
