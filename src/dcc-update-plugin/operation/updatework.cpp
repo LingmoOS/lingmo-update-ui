@@ -43,7 +43,7 @@ const QString ServiceLinkCN = QStringLiteral("https://insider.deepin.org.cn");
 const QString ChangeLogFile = "/usr/share/deepin/release-note/UpdateInfo.json";
 const QString ChangeLogDic = "/usr/share/deepin/";
 const QString UpdateLogTmpFile = "/tmp/deepin-update-log.json";
-const QString UpdateCheckBaseUrl = QStringLiteral("https://update.lingmo.org");
+const QString UpdateCheckBaseUrl = QStringLiteral("https://lingmo.org");
 
 const int LOWEST_BATTERY_PERCENT = 60;
 
@@ -963,11 +963,32 @@ void UpdateWorker::setDistUpgradeJob(const QString& jobPath)
 void UpdateWorker::updateSystemVersion()
 {
     qCDebug(logDccUpdatePlugin) << "Updating system version information";
-    const DConfig* dconfig = DConfigWatcher::instance()->getModulesConfig(DConfigWatcher::update);
-    if (dconfig && dconfig->isValid()) {
-        const auto showVersion = dconfig->value("showVersion").toString();
-        qCDebug(logDccUpdatePlugin) << "Show version config:" << showVersion;
-        m_model->setShowVersion(showVersion);
+
+    // Read BUILD_VERSION from /etc/os-release
+    QFile osRelease("/etc/os-release");
+    if (osRelease.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QTextStream in(&osRelease);
+        while (!in.atEnd()) {
+            QString line = in.readLine().trimmed();
+            if (line.startsWith("BUILD_VERSION=")) {
+                QString val = line.mid(QString("BUILD_VERSION=").length());
+                if (val.startsWith('"') && val.endsWith('"'))
+                    val = val.mid(1, val.length() - 2);
+                if (!val.isEmpty()) {
+                    qCDebug(logDccUpdatePlugin) << "Build version from os-release:" << val;
+                    m_model->setShowVersion(val);
+                }
+                break;
+            }
+        }
+    } else {
+        // Fallback to DConfig
+        const DConfig* dconfig = DConfigWatcher::instance()->getModulesConfig(DConfigWatcher::update);
+        if (dconfig && dconfig->isValid()) {
+            const auto showVersion = dconfig->value("showVersion").toString();
+            qCDebug(logDccUpdatePlugin) << "Show version config:" << showVersion;
+            m_model->setShowVersion(showVersion);
+        }
     }
 
     QString sVersion = QString("%1 %2").arg(DSysInfo::uosProductTypeName()).arg(DSysInfo::majorVersion());
