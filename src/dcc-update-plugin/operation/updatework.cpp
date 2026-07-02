@@ -571,8 +571,8 @@ void UpdateWorker::doCheckUpdates()
                 item->setExplain(tr("System upgrade to %1").arg(m_httpUpdateVersion));
                 item->setTypeString(SYSTEM_UPGRADE_TYPE_STRING);
                 item->setUpdateModeEnabled(m_model->updateMode() & UpdateType::SystemUpdate);
-                item->setUpdateStatus(UpdatesAvailable);
                 m_model->addUpdateInfo(item);
+                item->setUpdateStatus(UpdatesAvailable);
                 m_model->refreshUpdateUiModel();
                 m_model->setLastStatus(UpdatesAvailable, __LINE__);
                 m_model->setCheckUpdateStatus(UpdatesAvailable);
@@ -600,8 +600,8 @@ void UpdateWorker::doCheckUpdates()
                     item->setExplain(tr("System upgrade to %1").arg(m_httpUpdateVersion));
                     item->setTypeString(SYSTEM_UPGRADE_TYPE_STRING);
                     item->setUpdateModeEnabled(m_model->updateMode() & UpdateType::SystemUpdate);
-                    item->setUpdateStatus(UpdatesAvailable);
                     m_model->addUpdateInfo(item);
+                    item->setUpdateStatus(UpdatesAvailable);
                     m_model->refreshUpdateUiModel();
                     m_model->setLastStatus(UpdatesAvailable, __LINE__);
                     m_model->setCheckUpdateStatus(UpdatesAvailable);
@@ -1745,8 +1745,8 @@ void UpdateWorker::onCheckUpdateStatusChanged(const QString& value)
                 item->setExplain(tr("System upgrade to %1").arg(m_httpUpdateVersion));
                 item->setTypeString(SYSTEM_UPGRADE_TYPE_STRING);
                 item->setUpdateModeEnabled(m_model->updateMode() & UpdateType::SystemUpdate);
-                item->setUpdateStatus(UpdatesAvailable);
                 m_model->addUpdateInfo(item);
+                item->setUpdateStatus(UpdatesAvailable);
                 m_model->refreshUpdateUiModel();
                 m_model->setLastStatus(UpdatesAvailable, __LINE__);
                 m_model->setCheckUpdateStatus(UpdatesAvailable);
@@ -1776,8 +1776,8 @@ void UpdateWorker::onCheckUpdateStatusChanged(const QString& value)
                 item->setExplain(tr("System upgrade to %1").arg(m_httpUpdateVersion));
                 item->setTypeString(SYSTEM_UPGRADE_TYPE_STRING);
                 item->setUpdateModeEnabled(m_model->updateMode() & UpdateType::SystemUpdate);
-                item->setUpdateStatus(UpdatesAvailable);
                 m_model->addUpdateInfo(item);
+                item->setUpdateStatus(UpdatesAvailable);
                 m_model->setLastStatus(UpdatesAvailable, __LINE__);
             }
         } else {

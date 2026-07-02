@@ -1,3 +1,14 @@
+lingmo-update-ui (1.0.58.lingmo.1) unstable; urgency=medium
+
+  * feat: 更新检查改为 HTTP API（GET /api/v1/update/check），build/arch/channel/locale
+  * feat: 支持系统版本更新检测，显示新版名称如 "Lingmo OS 2.0.26"
+  * feat: HTTP 无系统更新时 apt 更新标记为 "Regular Software Updates"
+  * feat: apt 不可用时仍可显示 HTTP 系统更新信息
+  * fix: build 参数从 /etc/os-release BUILD_VERSION 获取
+  * perf: 页面切换加入淡入淡出动画（150ms + 400ms 入场）
+
+ -- Lingmo OS Team <team@lingmo.org>  Thu, 02 Jul 2026 23:03:00 +0800
+
 lingmo-update-ui (1.0.57.lingmo.1) unstable; urgency=medium
 
   * new release for Lingmo OS.
