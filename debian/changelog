@@ -1,3 +1,9 @@
+lingmo-update-ui (1.0.60.lingmo.1) unstable; urgency=medium
+
+  * fix: 移除 UpdatesAvailable 分支自定义 errTips 文本，还原原生 UI 样式
+
+ -- Lingmo OS Team <team@lingmo.org>  Fri, 03 Jul 2026 00:35:00 +0800
+
 lingmo-update-ui (1.0.59.lingmo.1) unstable; urgency=medium
 
   * fix: apt 成功但 HTTP 有更新时，已有 SystemUpdate item 未设 status 为 UpdatesAvailable，导致列表为空
