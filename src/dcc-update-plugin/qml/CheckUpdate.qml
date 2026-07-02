@@ -49,7 +49,8 @@ ColumnLayout {
                 Layout.alignment: Qt.AlignHCenter
                 width: implicitWidth
                 text: dccData.model().checkUpdateErrTips
-                font: D.DTK.fontManager.t8
+                font: dccData.model().checkUpdateStatus === Common.UpdatesAvailable ? D.DTK.fontManager.t6 : D.DTK.fontManager.t8
+                opacity: dccData.model().checkUpdateStatus === Common.UpdatesAvailable ? 1.0 : 0.7
             }
 
             D.Button {

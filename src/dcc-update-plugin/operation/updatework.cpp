@@ -15,9 +15,12 @@
 #include <QFutureWatcher>
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <QJsonObject>
 #include <QMutexLocker>
 #include <QNetworkAccessManager>
+#include <QSysInfo>
 #include <QNetworkReply>
+#include <QUrlQuery>
 #include <QTextStream>
 #include <QVariant>
 #include <QtConcurrent>
@@ -40,6 +43,7 @@ const QString ServiceLinkCN = QStringLiteral("https://insider.deepin.org.cn");
 const QString ChangeLogFile = "/usr/share/deepin/release-note/UpdateInfo.json";
 const QString ChangeLogDic = "/usr/share/deepin/";
 const QString UpdateLogTmpFile = "/tmp/deepin-update-log.json";
+const QString UpdateCheckBaseUrl = QStringLiteral("https://update.lingmo.org");
 
 const int LOWEST_BATTERY_PERCENT = 60;
 
@@ -492,10 +496,6 @@ void UpdateWorker::checkNeedDoUpdates()
 void UpdateWorker::doCheckUpdates()
 {
     qCInfo(logDccUpdatePlugin) << "do check updates";
-    if (checkDbusIsValid()) {
-        qCWarning(logDccUpdatePlugin) << "Check Dbus's validation failed do nothing";
-        return;
-    }
 
     if (m_checkUpdateJob) {
         qCWarning(logDccUpdatePlugin) << "Is checking update, won't do it again";
@@ -512,34 +512,88 @@ void UpdateWorker::doCheckUpdates()
         return;
     }
 
-    m_model->resetDownloadInfo(); // 在检查更新前重置数据，避免有上次检查的数据残留
+    m_model->resetDownloadInfo();
 
     // 立即显示检查中状态，给用户点击反馈
     m_model->setCheckUpdateStatus(Checking);
     m_doCheckUpdates = true;
-    QDBusPendingCall call = m_updateInter->UpdateSource();
-    QDBusPendingCallWatcher* watcher = new QDBusPendingCallWatcher(call, this);
-    connect(watcher, &QDBusPendingCallWatcher::finished, this, [this, watcher] {
-        QDBusPendingReply<QDBusObjectPath> reply = *watcher;
-        if (reply.isError()) {
-            qCWarning(logDccUpdatePlugin) << "Check update failed, error: " << reply.error().message();
-            m_model->setLastStatus(UpdatesStatus::CheckingFailed, __LINE__);
-            // 服务不可用时显示友好提示，而非原始 D-Bus 错误
-            const QString errMsg = reply.error().message();
-            if (errMsg.contains("not registered", Qt::CaseInsensitive)
-                || errMsg.contains("not available", Qt::CaseInsensitive)
-                || errMsg.contains("No such interface", Qt::CaseInsensitive)) {
-                m_model->setCheckUpdateErrTips(tr("Update service not available, please check if lastore-daemon is installed and running"));
+
+    // -- Step 1: HTTP check for system update --
+    QString locale = QLocale::system().name();
+    QString lang;
+    if (locale == "zh_CN") lang = "zh-CN";
+    else if (locale == "zh_TW" || locale == "zh_HK" || locale == "zh_SG") lang = "zh-TW";
+    else if (locale == "ja") lang = "ja";
+    else lang = "en";
+
+    QUrlQuery query;
+    query.addQueryItem("build", m_model->showVersion());
+    query.addQueryItem("arch", QSysInfo::currentCpuArchitecture());
+    query.addQueryItem("channel", "stable");
+    query.addQueryItem("locale", lang);
+
+    QUrl url(UpdateCheckBaseUrl + "/api/v1/update/check");
+    url.setQuery(query);
+
+    qCInfo(logDccUpdatePlugin) << "Checking system update via HTTP:" << url.toString();
+
+    QNetworkRequest request(url);
+    request.setRawHeader("Accept", "application/json");
+
+    auto *http = new QNetworkAccessManager(this);
+    QNetworkReply *reply = http->get(request);
+
+    connect(reply, &QNetworkReply::finished, this, [this, reply, http]() {
+        reply->deleteLater();
+        http->deleteLater();
+
+        if (reply->error() == QNetworkReply::NoError) {
+            QByteArray data = reply->readAll();
+            qCInfo(logDccUpdatePlugin) << "HTTP check response:" << data;
+            QJsonDocument doc = QJsonDocument::fromJson(data);
+            if (!doc.isNull() && doc.isObject()) {
+                QJsonObject obj = doc.object();
+                m_httpUpdateAvailable = obj.value("updateAvailable").toBool(false);
+                m_httpUpdateVersion = obj.value("version").toString();
             }
-            m_model->setCheckUpdateStatus(CheckingFailed);
-            cleanLaStoreJob(m_checkUpdateJob);
-            m_doCheckUpdates = false;
         } else {
-            const QString jobPath = reply.value().path();
-            qCInfo(logDccUpdatePlugin) << "jobpath:" << jobPath;
-            setCheckUpdatesJob(jobPath);
+            qCWarning(logDccUpdatePlugin) << "HTTP check failed, falling back to apt only:" << reply->errorString();
+            m_httpUpdateAvailable = false;
+            m_httpUpdateVersion.clear();
         }
-        watcher->deleteLater();
+
+        // -- Step 2: Apt-based check (always run) --
+        if (!m_updateInter->managerInterIsValid()) {
+            qCWarning(logDccUpdatePlugin) << "Lastore D-Bus unavailable, skip apt check";
+            if (!m_httpUpdateAvailable) {
+                m_model->setCheckUpdateStatus(CheckingFailed);
+                m_model->setCheckUpdateErrTips(
+                    tr("Update service not available, please check if lastore-daemon is installed and running"));
+            }
+            m_doCheckUpdates = false;
+            return;
+        }
+
+        qCInfo(logDccUpdatePlugin) << "Starting apt check via lastore-daemon";
+        QDBusPendingCall call = m_updateInter->UpdateSource();
+        QDBusPendingCallWatcher *watcher = new QDBusPendingCallWatcher(call, this);
+        connect(watcher, &QDBusPendingCallWatcher::finished, this, [this, watcher] {
+            watcher->deleteLater();
+            QDBusPendingReply<QDBusObjectPath> reply = *watcher;
+            if (reply.isError()) {
+                qCWarning(logDccUpdatePlugin) << "Apt check D-Bus error:" << reply.error().message();
+                if (!m_httpUpdateAvailable) {
+                    m_model->setCheckUpdateStatus(CheckingFailed);
+                    m_model->setCheckUpdateErrTips(
+                        tr("Update service not available, please check network connection"));
+                }
+                m_doCheckUpdates = false;
+            } else {
+                const QString jobPath = reply.value().path();
+                qCInfo(logDccUpdatePlugin) << "Apt check job path:" << jobPath;
+                setCheckUpdatesJob(jobPath);
+            }
+        });
     });
 }
 
@@ -1639,20 +1693,69 @@ void UpdateWorker::onCheckUpdateStatusChanged(const QString& value)
             const auto& description = m_checkUpdateJob->description();
             m_model->setLastErrorLog(CheckingFailed, description);
             m_model->setLastError(CheckingFailed, analyzeJobErrorMessage(description, CheckingFailed));
-            m_model->setLastStatus(CheckingFailed, __LINE__);
-            m_model->setCheckUpdateStatus(CheckingFailed);
+            if (m_httpUpdateAvailable && !m_httpUpdateVersion.isEmpty()) {
+                // Apt failed but HTTP says update available — create synthetic item
+                auto *item = new UpdateItemInfo(SystemUpdate);
+                item->setName(m_httpUpdateVersion);
+                item->setExplain(tr("System upgrade to %1").arg(m_httpUpdateVersion));
+                item->setTypeString(SYSTEM_UPGRADE_TYPE_STRING);
+                item->setUpdateModeEnabled(m_model->updateMode() & UpdateType::SystemUpdate);
+                item->setUpdateStatus(UpdatesAvailable);
+                m_model->addUpdateInfo(item);
+                m_model->refreshUpdateUiModel();
+                m_model->setLastStatus(UpdatesAvailable, __LINE__);
+                m_model->setCheckUpdateStatus(UpdatesAvailable);
+                m_model->setShowCheckUpdate(false);
+            } else {
+                m_model->setLastStatus(CheckingFailed, __LINE__);
+                m_model->setCheckUpdateStatus(CheckingFailed);
+            }
             deleteJob(m_checkUpdateJob);
             m_doCheckUpdates = false;
         }
     } else if (value == "success" || value == "succeed") {
         setUpdateInfo();
-        // 使用固定文本替代服务器获取的更新日志
+
+        // Override update item labels based on HTTP check result
+        auto infos = m_model->getAllUpdateInfos();
+        if (m_httpUpdateAvailable && !m_httpUpdateVersion.isEmpty()) {
+            // System update from server: label it as the new OS version
+            if (infos.contains(SystemUpdate)) {
+                auto *item = infos[SystemUpdate];
+                item->setName(m_httpUpdateVersion);
+                item->setExplain(tr("System upgrade to %1").arg(m_httpUpdateVersion));
+            } else {
+                // No apt packages but server says update available — create a synthetic item
+                auto *item = new UpdateItemInfo(SystemUpdate);
+                item->setName(m_httpUpdateVersion);
+                item->setExplain(tr("System upgrade to %1").arg(m_httpUpdateVersion));
+                item->setTypeString(SYSTEM_UPGRADE_TYPE_STRING);
+                item->setUpdateModeEnabled(m_model->updateMode() & UpdateType::SystemUpdate);
+                item->setUpdateStatus(UpdatesAvailable);
+                m_model->addUpdateInfo(item);
+                m_model->setLastStatus(UpdatesAvailable, __LINE__);
+            }
+        } else {
+            // No system update from server: rename "System Updates" to "Regular Software Updates"
+            if (infos.contains(SystemUpdate)) {
+                auto *item = infos[SystemUpdate];
+                item->setName(tr("Regular Software Updates"));
+                item->setExplain(tr("Regular package updates to keep your system stable"));
+            }
+        }
+
         setFixedUpdateLogText();
         m_model->refreshUpdateUiModel();
         m_model->setShowCheckUpdate(!m_model->isUpdatable());
+        // Force show update list when HTTP announces a system update
+        if (m_httpUpdateAvailable && !m_httpUpdateVersion.isEmpty()) {
+            m_model->setShowCheckUpdate(false);
+        }
     } else if (value == "end") {
         refreshLastTimeAndCheckCircle();
-        m_model->setCheckUpdateStatus(UpdatesStatus(m_model->lastStatus()));
+        // Use http-derived status to decide what to show
+        UpdatesStatus finalStatus = m_httpUpdateAvailable ? UpdatesAvailable : UpdatesStatus(m_model->lastStatus());
+        m_model->setCheckUpdateStatus(finalStatus);
         deleteJob(m_checkUpdateJob);
         m_doCheckUpdates = false;
     }

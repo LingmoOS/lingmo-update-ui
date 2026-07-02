@@ -142,6 +142,8 @@ private:
     QString calculateRequiredSpaceText(int updateTypes, const QString &originalText);
 
     bool m_doCheckUpdates;
+    bool m_httpUpdateAvailable = false;
+    QString m_httpUpdateVersion;
     QPointer<UpdateJobDBusProxy> m_checkUpdateJob;
     QPointer<UpdateJobDBusProxy> m_fixErrorJob;
     QPointer<UpdateJobDBusProxy> m_downloadJob;
