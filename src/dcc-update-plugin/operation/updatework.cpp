@@ -555,11 +555,15 @@ void UpdateWorker::doCheckUpdates()
                 QJsonObject obj = doc.object();
                 m_httpUpdateAvailable = obj.value("updateAvailable").toBool(false);
                 m_httpUpdateVersion = obj.value("latest").toObject().value("version").toString();
+                m_httpUpdateSummary = obj.value("summary").toString();
+                m_httpUpdateReleaseNotesUrl = obj.value("releaseNotesUrl").toString();
             }
         } else {
             qCWarning(logDccUpdatePlugin) << "HTTP check failed, falling back to apt only:" << reply->errorString();
             m_httpUpdateAvailable = false;
             m_httpUpdateVersion.clear();
+            m_httpUpdateSummary.clear();
+            m_httpUpdateReleaseNotesUrl.clear();
         }
 
         // -- Step 2: Apt-based check (always run) --
@@ -568,15 +572,23 @@ void UpdateWorker::doCheckUpdates()
             if (m_httpUpdateAvailable && !m_httpUpdateVersion.isEmpty()) {
                 auto *item = new UpdateItemInfo(SystemUpdate);
                 item->setName(m_httpUpdateVersion);
-                item->setExplain(tr("System upgrade to %1").arg(m_httpUpdateVersion));
+                item->setExplain(m_httpUpdateSummary.isEmpty()
+                                 ? tr("System upgrade to %1").arg(m_httpUpdateVersion)
+                                 : m_httpUpdateSummary);
                 item->setTypeString(SYSTEM_UPGRADE_TYPE_STRING);
                 item->setUpdateModeEnabled(m_model->updateMode() & UpdateType::SystemUpdate);
+                if (!m_httpUpdateSummary.isEmpty()) {
+                    DetailInfo releaseNote;
+                    releaseNote.name = m_httpUpdateVersion;
+                    releaseNote.info = m_httpUpdateSummary;
+                    releaseNote.link = m_httpUpdateReleaseNotesUrl;
+                    item->addDetailInfo(releaseNote);
+                }
                 m_model->addUpdateInfo(item);
                 item->setUpdateStatus(UpdatesAvailable);
                 m_model->refreshUpdateUiModel();
                 m_model->setLastStatus(UpdatesAvailable, __LINE__);
                 m_model->setCheckUpdateStatus(UpdatesAvailable);
-                m_model->setShowCheckUpdate(false);
             } else {
                 m_model->setCheckUpdateStatus(CheckingFailed);
                 m_model->setCheckUpdateErrTips(
@@ -597,15 +609,23 @@ void UpdateWorker::doCheckUpdates()
                 if (m_httpUpdateAvailable && !m_httpUpdateVersion.isEmpty()) {
                     auto *item = new UpdateItemInfo(SystemUpdate);
                     item->setName(m_httpUpdateVersion);
-                    item->setExplain(tr("System upgrade to %1").arg(m_httpUpdateVersion));
+                    item->setExplain(m_httpUpdateSummary.isEmpty()
+                                     ? tr("System upgrade to %1").arg(m_httpUpdateVersion)
+                                     : m_httpUpdateSummary);
                     item->setTypeString(SYSTEM_UPGRADE_TYPE_STRING);
                     item->setUpdateModeEnabled(m_model->updateMode() & UpdateType::SystemUpdate);
+                    if (!m_httpUpdateSummary.isEmpty()) {
+                        DetailInfo releaseNote;
+                        releaseNote.name = m_httpUpdateVersion;
+                        releaseNote.info = m_httpUpdateSummary;
+                        releaseNote.link = m_httpUpdateReleaseNotesUrl;
+                        item->addDetailInfo(releaseNote);
+                    }
                     m_model->addUpdateInfo(item);
                     item->setUpdateStatus(UpdatesAvailable);
                     m_model->refreshUpdateUiModel();
                     m_model->setLastStatus(UpdatesAvailable, __LINE__);
                     m_model->setCheckUpdateStatus(UpdatesAvailable);
-                    m_model->setShowCheckUpdate(false);
                 } else {
                     m_model->setCheckUpdateStatus(CheckingFailed);
                     m_model->setCheckUpdateErrTips(
@@ -1743,9 +1763,18 @@ void UpdateWorker::onCheckUpdateStatusChanged(const QString& value)
                 m_model->setIsUpdatable(true);
                 auto *item = new UpdateItemInfo(SystemUpdate);
                 item->setName(m_httpUpdateVersion);
-                item->setExplain(tr("System upgrade to %1").arg(m_httpUpdateVersion));
+                item->setExplain(m_httpUpdateSummary.isEmpty()
+                                 ? tr("System upgrade to %1").arg(m_httpUpdateVersion)
+                                 : m_httpUpdateSummary);
                 item->setTypeString(SYSTEM_UPGRADE_TYPE_STRING);
                 item->setUpdateModeEnabled(m_model->updateMode() & UpdateType::SystemUpdate);
+                if (!m_httpUpdateSummary.isEmpty()) {
+                    DetailInfo releaseNote;
+                    releaseNote.name = m_httpUpdateVersion;
+                    releaseNote.info = m_httpUpdateSummary;
+                    releaseNote.link = m_httpUpdateReleaseNotesUrl;
+                    item->addDetailInfo(releaseNote);
+                }
                 m_model->addUpdateInfo(item);
                 item->setUpdateStatus(UpdatesAvailable);
                 m_model->refreshUpdateUiModel();
@@ -1770,8 +1799,17 @@ void UpdateWorker::onCheckUpdateStatusChanged(const QString& value)
             if (infos.contains(SystemUpdate)) {
                 auto *item = infos[SystemUpdate];
                 item->setName(m_httpUpdateVersion);
-                item->setExplain(tr("System upgrade to %1").arg(m_httpUpdateVersion));
+                item->setExplain(m_httpUpdateSummary.isEmpty()
+                                 ? tr("System upgrade to %1").arg(m_httpUpdateVersion)
+                                 : m_httpUpdateSummary);
                 item->setUpdateStatus(UpdatesAvailable);
+                if (!m_httpUpdateSummary.isEmpty()) {
+                    DetailInfo releaseNote;
+                    releaseNote.name = m_httpUpdateVersion;
+                    releaseNote.info = m_httpUpdateSummary;
+                    releaseNote.link = m_httpUpdateReleaseNotesUrl;
+                    item->addDetailInfo(releaseNote);
+                }
             }
         } else if (!m_httpUpdateAvailable && infos.contains(SystemUpdate)) {
             // No system update from server: rename "System Updates" to "Regular Software Updates"

@@ -1,3 +1,10 @@
+lingmo-update-ui (1.0.66.lingmo.1) unstable; urgency=medium
+
+  * feat: 解析 HTTP summary/releaseNotesUrl 并作为 RichText 显示更新日志
+  * feat: 更新日志通过 explain 字段直接渲染，同时作为 detailInfo 在 "View More" 中展示
+
+ -- Lingmo OS Team <team@lingmo.org>  Sat, 04 Jul 2026 00:50:00 +0800
+
 lingmo-update-ui (1.0.65.lingmo.1) unstable; urgency=medium
 
   * feat: apt 无包时隐藏下载按钮，提示 "New system version available"
