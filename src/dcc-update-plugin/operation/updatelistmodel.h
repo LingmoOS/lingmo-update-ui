@@ -14,6 +14,7 @@ class UpdateListModel : public QAbstractListModel
 
     Q_PROPERTY(bool anyVisible READ anyVisible NOTIFY visibilityChanged)
     Q_PROPERTY(bool isUpdateEnable READ isUpdateEnable NOTIFY isUpdateEnableChanged)
+    Q_PROPERTY(bool downloadable READ downloadable NOTIFY downloadableChanged)
     Q_PROPERTY(QString downloadSize READ downloadSize NOTIFY downloadSizeChanged)
 
 public:
@@ -59,6 +60,7 @@ public:
 
     bool anyVisible() const;
     bool isUpdateEnable() const;
+    bool downloadable() const;
     QString downloadSize() const;
 
     Q_INVOKABLE UpdateType getUpdateType(int index) const;
@@ -70,6 +72,7 @@ public Q_SLOTS:
 signals:
     void visibilityChanged();
     void isUpdateEnableChanged();
+    void downloadableChanged();
     void downloadSizeChanged();
 
 private:

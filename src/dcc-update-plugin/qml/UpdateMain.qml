@@ -378,8 +378,10 @@ DccObject {
         page: UpdateControl {
             updateListModels: dccData.model().preUpdatelistModel
             updateTitle: !dccData.model().downloadWaiting ? qsTr("Updates Available") : qsTr("Downloading updates...")
-            btnActions: [ qsTr("Download") ]
-            updateTips: qsTr("Update size: ") + dccData.model().preUpdatelistModel.downloadSize
+            btnActions: dccData.model().preUpdatelistModel.downloadable ? [ qsTr("Download") ] : []
+            updateTips: dccData.model().preUpdatelistModel.downloadable
+                       ? qsTr("Update size: ") + dccData.model().preUpdatelistModel.downloadSize
+                       : qsTr("New system version available")
             busyState: dccData.model().downloadWaiting
             updateListEnable: !dccData.model().downloadWaiting
 

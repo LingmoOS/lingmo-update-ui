@@ -65,6 +65,7 @@ void UpdateListModel::addUpdateData(UpdateItemInfo* itemData)
     endInsertRows();
 
     refreshDownloadSize();
+    emit downloadableChanged();
     emit visibilityChanged();
     qCDebug(logDccUpdatePlugin) << "Update data added, total items:" << m_updateLists.size();
 }
@@ -129,6 +130,15 @@ bool UpdateListModel::anyVisible() const
     return m_updateLists.count();
 }
 
+bool UpdateListModel::downloadable() const
+{
+    for (auto *item : m_updateLists) {
+        if (item->isUpdateAvailable())
+            return true;
+    }
+    return false;
+}
+
 bool UpdateListModel::isUpdateEnable() const
 {
     for (int i = 0; i < m_updateLists.count(); ++i) {
@@ -159,6 +169,7 @@ void UpdateListModel::clearAllData()
     m_updateLists.clear();
     endResetModel();
 
+    emit downloadableChanged();
     emit visibilityChanged();
 }
 
