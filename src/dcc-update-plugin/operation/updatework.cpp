@@ -1763,32 +1763,20 @@ void UpdateWorker::onCheckUpdateStatusChanged(const QString& value)
 
         // Override update item labels based on HTTP check result
         auto infos = m_model->getAllUpdateInfos();
-        if (m_httpUpdateAvailable && !m_httpUpdateVersion.isEmpty()) {
-            // System update from server: label it as the new OS version
+        if (m_httpUpdateAvailable && !m_httpUpdateVersion.isEmpty()
+                && infos.contains(SystemUpdate) && infos[SystemUpdate]->isUpdateAvailable()) {
+            // Apt has packages and HTTP says system update — label as the new OS version
+            auto *item = infos[SystemUpdate];
+            item->setName(m_httpUpdateVersion);
+            item->setExplain(tr("System upgrade to %1").arg(m_httpUpdateVersion));
+            item->setUpdateStatus(UpdatesAvailable);
             m_model->setIsUpdatable(true);
-            if (infos.contains(SystemUpdate)) {
-                auto *item = infos[SystemUpdate];
-                item->setName(m_httpUpdateVersion);
-                item->setExplain(tr("System upgrade to %1").arg(m_httpUpdateVersion));
-                item->setUpdateStatus(UpdatesAvailable);
-            } else {
-                // No apt packages but server says update available — create a synthetic item
-                auto *item = new UpdateItemInfo(SystemUpdate);
-                item->setName(m_httpUpdateVersion);
-                item->setExplain(tr("System upgrade to %1").arg(m_httpUpdateVersion));
-                item->setTypeString(SYSTEM_UPGRADE_TYPE_STRING);
-                item->setUpdateModeEnabled(m_model->updateMode() & UpdateType::SystemUpdate);
-                m_model->addUpdateInfo(item);
-                item->setUpdateStatus(UpdatesAvailable);
-                m_model->setLastStatus(UpdatesAvailable, __LINE__);
-            }
-        } else {
+            m_model->setLastStatus(UpdatesAvailable, __LINE__);
+        } else if (!m_httpUpdateAvailable && infos.contains(SystemUpdate)) {
             // No system update from server: rename "System Updates" to "Regular Software Updates"
-            if (infos.contains(SystemUpdate)) {
-                auto *item = infos[SystemUpdate];
-                item->setName(tr("Regular Software Updates"));
-                item->setExplain(tr("Regular package updates to keep your system stable"));
-            }
+            auto *item = infos[SystemUpdate];
+            item->setName(tr("Regular Software Updates"));
+            item->setExplain(tr("Regular package updates to keep your system stable"));
         }
 
         setFixedUpdateLogText();
@@ -1796,9 +1784,8 @@ void UpdateWorker::onCheckUpdateStatusChanged(const QString& value)
         m_model->setShowCheckUpdate(!m_model->isUpdatable());
     } else if (value == "end") {
         refreshLastTimeAndCheckCircle();
-        // Use http-derived status to decide what to show
-        UpdatesStatus finalStatus = m_httpUpdateAvailable ? UpdatesAvailable : UpdatesStatus(m_model->lastStatus());
-        m_model->setCheckUpdateStatus(finalStatus);
+        // Respect the status set by setUpdateInfo / HTTP override above
+        m_model->setCheckUpdateStatus(UpdatesStatus(m_model->lastStatus()));
         deleteJob(m_checkUpdateJob);
         m_doCheckUpdates = false;
     }

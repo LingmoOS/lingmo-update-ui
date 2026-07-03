@@ -1,3 +1,9 @@
+lingmo-update-ui (1.0.63.lingmo.1) unstable; urgency=medium
+
+  * fix: 优化更新状态逻辑，确保在有可用更新时正确显示系统升级信息
+
+ -- Lingmo OS Team <team@lingmo.org>  Fri, 03 Jul 2026 14:07:00 +0800
+
 lingmo-update-ui (1.0.62.lingmo.1) unstable; urgency=medium
 
   * fix: JSON 解析 path 错误，version 在 latest 对象内而非顶层，导致 m_httpUpdateVersion 始终为空
