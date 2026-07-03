@@ -1763,15 +1763,16 @@ void UpdateWorker::onCheckUpdateStatusChanged(const QString& value)
 
         // Override update item labels based on HTTP check result
         auto infos = m_model->getAllUpdateInfos();
-        if (m_httpUpdateAvailable && !m_httpUpdateVersion.isEmpty()
-                && infos.contains(SystemUpdate) && infos[SystemUpdate]->isUpdateAvailable()) {
-            // Apt has packages and HTTP says system update — label as the new OS version
-            auto *item = infos[SystemUpdate];
-            item->setName(m_httpUpdateVersion);
-            item->setExplain(tr("System upgrade to %1").arg(m_httpUpdateVersion));
-            item->setUpdateStatus(UpdatesAvailable);
+        if (m_httpUpdateAvailable && !m_httpUpdateVersion.isEmpty()) {
+            // HTTP says a system update is available — label as the new OS version
             m_model->setIsUpdatable(true);
             m_model->setLastStatus(UpdatesAvailable, __LINE__);
+            if (infos.contains(SystemUpdate)) {
+                auto *item = infos[SystemUpdate];
+                item->setName(m_httpUpdateVersion);
+                item->setExplain(tr("System upgrade to %1").arg(m_httpUpdateVersion));
+                item->setUpdateStatus(UpdatesAvailable);
+            }
         } else if (!m_httpUpdateAvailable && infos.contains(SystemUpdate)) {
             // No system update from server: rename "System Updates" to "Regular Software Updates"
             auto *item = infos[SystemUpdate];

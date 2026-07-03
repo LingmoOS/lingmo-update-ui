@@ -1,3 +1,10 @@
+lingmo-update-ui (1.0.64.lingmo.1) unstable; urgency=medium
+
+  * fix: HTTP 有更新时始终进入分支显示系统版本，不再依赖 apt 有包
+  * fix: 只有当 HTTP 和 apt 均无更新时才判定为 "no update"
+
+ -- Lingmo OS Team <team@lingmo.org>  Fri, 03 Jul 2026 15:25:00 +0800
+
 lingmo-update-ui (1.0.63.lingmo.1) unstable; urgency=medium
 
   * fix: 优化更新状态逻辑，确保在有可用更新时正确显示系统升级信息
