@@ -1,3 +1,9 @@
+lingmo-update-ui (1.0.68.lingmo.1) unstable; urgency=medium
+
+  * fix: HTTP系统更新无apt包时合并UnknownUpdate包解决下载无反应
+
+ -- Lingmo OS Team <team@lingmo.org>  Sat, 04 Jul 2026 14:50:00 +0800
+
 lingmo-update-ui (1.0.67.lingmo.1) unstable; urgency=medium
 
   * feat: 优化更新日志显示和下载逻辑，确保用户体验更流畅

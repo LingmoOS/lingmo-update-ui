@@ -832,11 +832,19 @@ void UpdateWorker::startDownload(int updateTypes)
     }
 
     if (updateTypes == 0) {
-        // No package-based updates to download — open release notes if available
-        if (m_httpUpdateAvailable && !m_httpUpdateReleaseNotesUrl.isEmpty()) {
+        // No package-based updates from requested types — scan all available info
+        auto allInfos = m_model->getAllUpdateInfos();
+        for (auto it = allInfos.constBegin(); it != allInfos.constEnd(); ++it) {
+            if (it.value()->isUpdateAvailable()) {
+                updateTypes |= it.key();
+            }
+        }
+        if (updateTypes == 0 && m_httpUpdateAvailable && !m_httpUpdateReleaseNotesUrl.isEmpty()) {
             QDesktopServices::openUrl(QUrl(m_httpUpdateReleaseNotesUrl));
         }
-        return;
+        if (updateTypes == 0) {
+            return;
+        }
     }
 
     cleanLaStoreJob(m_downloadJob);
@@ -1827,6 +1835,20 @@ void UpdateWorker::onCheckUpdateStatusChanged(const QString& value)
                     releaseNote.link = m_httpUpdateReleaseNotesUrl;
                     item->addDetailInfo(releaseNote);
                 }
+                // If SystemUpdate has no packages but other types do, merge them
+                if (!item->isUpdateAvailable()) {
+                    QStringList merged;
+                    for (auto it = infos.constBegin(); it != infos.constEnd(); ++it) {
+                        if (it.key() != SystemUpdate && !it.value()->packages().isEmpty()) {
+                            merged << it.value()->packages();
+                            it.value()->setPackages(QStringList());  // clear so they don't double-count
+                        }
+                    }
+                    if (!merged.isEmpty()) {
+                        item->setPackages(merged);
+                        setUpdateItemDownloadSize(item);
+                    }
+                }
             } else {
                 // No SystemUpdate item from lastore — create synthetic one
                 auto *item = new UpdateItemInfo(SystemUpdate);
@@ -1843,6 +1865,18 @@ void UpdateWorker::onCheckUpdateStatusChanged(const QString& value)
                     releaseNote.info = m_httpUpdateSummary;
                     releaseNote.link = m_httpUpdateReleaseNotesUrl;
                     item->addDetailInfo(releaseNote);
+                }
+                // Merge packages from other types if any
+                QStringList merged;
+                for (auto it = infos.constBegin(); it != infos.constEnd(); ++it) {
+                    if (it.key() != SystemUpdate && !it.value()->packages().isEmpty()) {
+                        merged << it.value()->packages();
+                        it.value()->setPackages(QStringList());
+                    }
+                }
+                if (!merged.isEmpty()) {
+                    item->setPackages(merged);
+                    setUpdateItemDownloadSize(item);
                 }
                 m_model->addUpdateInfo(item);
             }
