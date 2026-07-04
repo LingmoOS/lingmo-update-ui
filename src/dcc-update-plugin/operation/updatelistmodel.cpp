@@ -133,7 +133,7 @@ bool UpdateListModel::anyVisible() const
 bool UpdateListModel::downloadable() const
 {
     for (auto *item : m_updateLists) {
-        if (item->isUpdateAvailable())
+        if (item->updateStatus() == UpdatesAvailable)
             return true;
     }
     return false;

@@ -1,3 +1,9 @@
+lingmo-update-ui (1.0.67.lingmo.1) unstable; urgency=medium
+
+  * feat: 优化更新日志显示和下载逻辑，确保用户体验更流畅
+
+ -- Lingmo OS Team <team@lingmo.org>  Sat, 04 Jul 2026 14:12:00 +0800
+
 lingmo-update-ui (1.0.66.lingmo.1) unstable; urgency=medium
 
   * feat: 解析 HTTP summary/releaseNotesUrl 并作为 RichText 显示更新日志

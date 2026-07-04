@@ -822,6 +822,23 @@ QString UpdateWorker::calculateRequiredSpaceText(int updateTypes, const QString 
 void UpdateWorker::startDownload(int updateTypes)
 {
     qCInfo(logDccUpdatePlugin) << "Start download, update types: " << updateTypes;
+
+    // If SystemUpdate has no apt packages (HTTP-only update), strip it from types
+    if (updateTypes & SystemUpdate) {
+        auto infos = m_model->getAllUpdateInfos();
+        if (infos.contains(SystemUpdate) && !infos[SystemUpdate]->isUpdateAvailable()) {
+            updateTypes &= ~SystemUpdate;
+        }
+    }
+
+    if (updateTypes == 0) {
+        // No package-based updates to download — open release notes if available
+        if (m_httpUpdateAvailable && !m_httpUpdateReleaseNotesUrl.isEmpty()) {
+            QDesktopServices::openUrl(QUrl(m_httpUpdateReleaseNotesUrl));
+        }
+        return;
+    }
+
     cleanLaStoreJob(m_downloadJob);
 
     // 直接设置为正在下载状态, 否则切换下载界面等待时间稍长,体验不好
@@ -1810,6 +1827,24 @@ void UpdateWorker::onCheckUpdateStatusChanged(const QString& value)
                     releaseNote.link = m_httpUpdateReleaseNotesUrl;
                     item->addDetailInfo(releaseNote);
                 }
+            } else {
+                // No SystemUpdate item from lastore — create synthetic one
+                auto *item = new UpdateItemInfo(SystemUpdate);
+                item->setName(m_httpUpdateVersion);
+                item->setExplain(m_httpUpdateSummary.isEmpty()
+                                 ? tr("System upgrade to %1").arg(m_httpUpdateVersion)
+                                 : m_httpUpdateSummary);
+                item->setTypeString(SYSTEM_UPGRADE_TYPE_STRING);
+                item->setUpdateModeEnabled(m_model->updateMode() & UpdateType::SystemUpdate);
+                item->setUpdateStatus(UpdatesAvailable);
+                if (!m_httpUpdateSummary.isEmpty()) {
+                    DetailInfo releaseNote;
+                    releaseNote.name = m_httpUpdateVersion;
+                    releaseNote.info = m_httpUpdateSummary;
+                    releaseNote.link = m_httpUpdateReleaseNotesUrl;
+                    item->addDetailInfo(releaseNote);
+                }
+                m_model->addUpdateInfo(item);
             }
         } else if (!m_httpUpdateAvailable && infos.contains(SystemUpdate)) {
             // No system update from server: rename "System Updates" to "Regular Software Updates"
