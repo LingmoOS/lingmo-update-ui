@@ -54,7 +54,7 @@ void UpdateWorker::init()
     m_waitServiceTimer->setInterval(25 * 1000);
     m_waitServiceTimer->setSingleShot(true);
     connect(m_waitServiceTimer, &QTimer::timeout, this, [this]() {
-        qWarning(logUpdateModal) << "org.deepin.dde.Lastore1 interface is still invalid, check error";
+        qWarning(logUpdateModal) << "org.lingmo.Lastore1 interface is still invalid, check error";
         UpdateModel::instance()->setCheckStatus(UpdateModel::CheckFailed);
     });
     connect(m_dbusProxy, &UpdateDBusProxy::JobListChanged, this, &UpdateWorker::onJobListChanged);
@@ -70,7 +70,7 @@ void UpdateWorker::init()
             if (status != UpdateModel::Installing)
                 return;
 
-            UpdateModel::instance()->setLastErrorLog("org.deepin.dde.Lastore1 interface is invalid.");
+            UpdateModel::instance()->setLastErrorLog("org.lingmo.Lastore1 interface is invalid.");
             UpdateModel::instance()->setUpdateError(UpdateModel::UpdateError::UpdateInterfaceError);
             UpdateModel::instance()->setUpdateStatus(UpdateModel::UpdateStatus::InstallFailed);
         } else {
@@ -112,7 +112,7 @@ void UpdateWorker::doDistUpgrade(bool doBackup)
 {
     qCInfo(logUpdateModal) << "Do dist upgrade, do backup: " << doBackup;
     if (!m_dbusProxy->managerInterIsValid()) {
-        UpdateModel::instance()->setLastErrorLog("org.deepin.dde.Lastore1.Manager interface is invalid.");
+        UpdateModel::instance()->setLastErrorLog("org.lingmo.Lastore1.Manager interface is invalid.");
         UpdateModel::instance()->setUpdateError(UpdateModel::UpdateError::UpdateInterfaceError);
         UpdateModel::instance()->setUpdateStatus(UpdateModel::UpdateStatus::InstallFailed);
         return;
@@ -389,7 +389,7 @@ void UpdateWorker::doCheckSystem(int updateMode, UpdateModel::CheckSystemStage s
 {
     qCInfo(logUpdateModal) << "Update mode:" << updateMode << ", check system stage:" << stage;
     if (!m_dbusProxy->managerInterIsValid()) {
-        qCWarning(logUpdateModal) << "org.deepin.dde.Lastore1 interface is invalid, wait for service to be valid";
+        qCWarning(logUpdateModal) << "org.lingmo.Lastore1 interface is invalid, wait for service to be valid";
         m_waitingToCheckSystem = true;
         m_waitServiceTimer->start();
         return;
@@ -530,9 +530,9 @@ void UpdateWorker::enableShortcuts(bool enable)
 {
     qCInfo(logUpdateModal) << "Enable shortcuts: " << enable;
     QDBusPendingCall reply = DDBusSender()
-        .service("com.deepin.dde.osd")
+        .service("com.lingmo.osd")
         .path("/")
-        .interface("com.deepin.dde.osd")
+        .interface("com.lingmo.osd")
         .property("OSDEnabled")
         .set(enable);
 

@@ -12,12 +12,12 @@ Build-Depends:
  libdtk6core-dev,
  libdtk6gui-dev,
  libdtk6widget-dev,
- velora-tray-loader-dev,
- dde-control-center-dev (>=6.1.71)
+ lingmo-tray-loader-dev,
+ lingmo-control-center-dev (>=6.1.71)
 Standards-Version: 4.5.0
 Homepage: https://github.com/LingmoOS/lingmo-update-ui
 
-Package: deepin-update-ui
+Package: lingmo-update-ui
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, lastore-daemon (>>6.2.25),
 Description: The UI collection for updating functions, including control

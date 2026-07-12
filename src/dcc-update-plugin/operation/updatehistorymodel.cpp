@@ -22,7 +22,7 @@ UpdateHistoryModel::UpdateHistoryModel(QObject *parent)
 void UpdateHistoryModel::refreshHistory()
 {
     qCDebug(logDccUpdatePlugin) << "Refreshing update history from DBus";
-    QDBusInterface managerInter("org.deepin.dde.Lastore1",
+    QDBusInterface managerInter("org.lingmo.Lastore1",
                                 "/org/deepin/dde/Lastore1",
                                 "org.deepin.dde.Lastore1.Manager",
                                 QDBusConnection::systemBus());

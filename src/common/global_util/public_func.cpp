@@ -78,7 +78,7 @@ QString getCurrentLocale()
 
     const auto path(QString("/org/deepin/dde/Accounts1/User%1").arg(uid));
     qCInfo(logCommon) << "Current user account path: " << path;
-    QDBusReply<QDBusVariant> reply = DDBusSender::system().interface("org.deepin.dde.Accounts1.User").path(path).service("org.deepin.dde.Accounts1").property("Locale").get();
+    QDBusReply<QDBusVariant> reply = DDBusSender::system().interface("org.lingmo.Accounts1.User").path(path).service("org.lingmo.Accounts1").property("Locale").get();
     if (!reply.isValid()) {
         qCWarning(logCommon) << "Failed to get current user locale, error: " << reply.error().message();
         return DEFAULT_LOCALE;

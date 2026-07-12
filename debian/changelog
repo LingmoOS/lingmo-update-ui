@@ -1,3 +1,9 @@
+lingmo-update-ui (1.0.69.lingmo.1) unstable; urgency=medium
+
+  * Lingmo namespace migration.
+
+ -- Lingmo OS Team <team@lingmo.org>  Sun, 12 Jul 2026 23:11:19 +0800
+
 lingmo-update-ui (1.0.68.lingmo.1) unstable; urgency=medium
 
   * fix: HTTP系统更新无apt包时合并UnknownUpdate包解决下载无反应

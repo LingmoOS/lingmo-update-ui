@@ -167,7 +167,7 @@ void UpdateWorker::initConnect()
 {
     qCDebug(logDccUpdatePlugin) << "Setting up DBus connections and signals";
     // 注释掉 license D-Bus 信号连接，改用本地判断逻辑
-    // QDBusConnection::systemBus().connect("com.deepin.license",
+    // QDBusConnection::systemBus().connect("com.lingmo.license",
     //                                      "/com/deepin/license/Info",
     //                                      "com.deepin.license.Info",
     //                                      "LicenseStateChange", this, SLOT(onLicenseStateChange()));
@@ -180,7 +180,7 @@ void UpdateWorker::initConnect()
     connect(m_updateInter, &UpdateDBusProxy::ClassifiedUpdatablePackagesChanged, this, &UpdateWorker::onClassifiedUpdatablePackagesChanged);
     connect(m_updateInter, &UpdateDBusProxy::ImmutableAutoRecoveryChanged, m_model, &UpdateModel::setImmutableAutoRecovery);
 
-    QDBusConnection::systemBus().connect("org.deepin.dde.Lastore1",
+    QDBusConnection::systemBus().connect("org.lingmo.Lastore1",
                                          "/org/deepin/dde/Lastore1",
                                          "org.freedesktop.DBus.Properties",
                                          "PropertiesChanged", m_model, SLOT(onUpdatePropertiesChanged(QString, QVariantMap, QStringList)));
@@ -1594,7 +1594,7 @@ void UpdateWorker::onRequestRetry(int type, int updateTypes)
             return;
         }
 
-        QDBusInterface lastoreManager("org.deepin.dde.Lastore1",
+        QDBusInterface lastoreManager("org.lingmo.Lastore1",
                               "/org/deepin/dde/Lastore1",
                               "org.deepin.dde.Lastore1.Manager",
                               QDBusConnection::systemBus());

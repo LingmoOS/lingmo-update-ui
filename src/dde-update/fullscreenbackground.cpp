@@ -128,7 +128,7 @@ void FullScreenBackground::updateBlurBackground(const QString &path)
     };
 
     qCDebug(logUpdateModal) << "Creating DBus message for ImageEffect service";
-    QDBusMessage message = QDBusMessage::createMethodCall("org.deepin.dde.ImageEffect1", "/org/deepin/dde/ImageEffect1",
+    QDBusMessage message = QDBusMessage::createMethodCall("org.lingmo.ImageEffect1", "/org/lingmo/ImageEffect1",
                                                           "org.deepin.dde.ImageEffect1", "Get");
     message << "" << path;
     // 异步调用
@@ -533,8 +533,8 @@ bool FullScreenBackground::getScaledBlurImage(const QString &originPath, QString
     }
 
     // 壁纸服务dde-wallpaper-cache
-    QDBusInterface wallpaperCacheInterface("org.deepin.dde.WallpaperCache", "/org/deepin/dde/WallpaperCache",
-                                           "org.deepin.dde.WallpaperCache", QDBusConnection::systemBus());
+    QDBusInterface wallpaperCacheInterface("org.lingmo.WallpaperCache", "/org/lingmo/WallpaperCache",
+                                           "org.lingmo.WallpaperCache", QDBusConnection::systemBus());
     QVariantList sizeArray;
     sizeArray << QVariant::fromValue(this->trueSize());
     QDBusReply<QStringList> pathList= wallpaperCacheInterface.call("GetProcessedImagePaths", originPath, sizeArray);

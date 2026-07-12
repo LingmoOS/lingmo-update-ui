@@ -179,8 +179,8 @@ void PluginUpdatePlugin::invokedMenuItem(const QString &itemKey, const QString &
     if (menuId == MENU_OPEN_UPDATES) {
         // 更新设置
         DDBusSender()
-            .service("org.deepin.dde.ControlCenter1")
-            .interface("org.deepin.dde.ControlCenter1")
+            .service("org.lingmo.ControlCenter1")
+            .interface("org.lingmo.ControlCenter1")
             .path("/org/deepin/dde/ControlCenter1")
             .method("ShowModule")
             .arg(QString("update"))
@@ -188,8 +188,8 @@ void PluginUpdatePlugin::invokedMenuItem(const QString &itemKey, const QString &
     } else if (menuId == MENU_RESTART) {
         // 重启系统
         DDBusSender()
-            .service("org.deepin.dde.ShutdownFront1")
-            .interface("org.deepin.dde.ShutdownFront1")
+            .service("org.lingmo.ShutdownFront1")
+            .interface("org.lingmo.ShutdownFront1")
             .path("/org/deepin/dde/ShutdownFront1")
             .method("Restart")
             .call();

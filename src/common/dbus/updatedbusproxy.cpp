@@ -30,9 +30,9 @@ UpdateDBusProxy::UpdateDBusProxy(QObject *parent)
                                               AtomicUpdaterJobInterface,
                                               QDBusConnection::systemBus(),
                                               this))
-    , m_smartMirrorInter(new DDBusInterface("org.deepin.dde.Lastore1.Smartmirror",
-                                        "/org/deepin/dde/Lastore1/Smartmirror",
-                                          "org.deepin.dde.Lastore1.Smartmirror",
+    , m_smartMirrorInter(new DDBusInterface("org.lingmo.Lastore1.Smartmirror",
+                                        "/org/lingmo/Lastore1/Smartmirror",
+                                          "org.lingmo.Lastore1.Smartmirror",
                                           QDBusConnection::systemBus(),
                                           this))
     , m_lockServiceInter(new DDBusInterface(
