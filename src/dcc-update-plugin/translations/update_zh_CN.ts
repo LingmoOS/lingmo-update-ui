@@ -551,5 +551,17 @@
         <source>Please plug in and then install updates.</source>
         <translation>请插入电源后再开始更新</translation>
     </message>
+        <message>
+            <source>Regular Software Updates</source>
+            <translation>常规软件更新</translation>
+        </message>
+        <message>
+            <source>Regular package updates to keep your system stable</source>
+            <translation>常规软件包更新，保持系统稳定</translation>
+        </message>
+        <message>
+            <source>Failed to check for system updates, please check your network connection</source>
+            <translation>检查系统更新失败，请检查网络连接</translation>
+        </message>
 </context>
 </TS>

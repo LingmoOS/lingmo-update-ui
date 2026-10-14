@@ -531,5 +531,17 @@
         <source>Please plug in and then install updates.</source>
         <translation>Lütfen fişe takın ve ardından güncellemeleri yükleyin.</translation>
     </message>
+        <message>
+            <source>Regular Software Updates</source>
+            <translation type="unfinished"></translation>
+        </message>
+        <message>
+            <source>Regular package updates to keep your system stable</source>
+            <translation type="unfinished"></translation>
+        </message>
+        <message>
+            <source>Failed to check for system updates, please check your network connection</source>
+            <translation type="unfinished"></translation>
+        </message>
 </context>
 </TS>

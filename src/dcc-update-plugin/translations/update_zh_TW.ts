@@ -531,5 +531,17 @@
         <source>Please plug in and then install updates.</source>
         <translation>請插入電源後再開始更新</translation>
     </message>
+        <message>
+            <source>Regular Software Updates</source>
+            <translation>常規軟體更新</translation>
+        </message>
+        <message>
+            <source>Regular package updates to keep your system stable</source>
+            <translation>常規軟體套件更新，保持系統穩定</translation>
+        </message>
+        <message>
+            <source>Failed to check for system updates, please check your network connection</source>
+            <translation>檢查系統更新失敗，請檢查網路連線</translation>
+        </message>
 </context>
 </TS>

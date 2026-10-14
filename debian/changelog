@@ -1,3 +1,14 @@
+lingmo-update-ui (1.0.70.lingmo5u1) unstable; urgency=medium
+
+  * i18n: 补齐更新页固定文案的多语言
+    - “仅仓库更新”时页面显示的固定文案（Regular Software Updates /
+      Regular package updates to keep your system stable）以及 API 不可达时的
+      报错文案，此前只有英文源码串没有译文
+    - 46 个 ts 文件全部补上条目：zh_CN/zh_TW/zh_HK 给出译文，其余语言标记
+      unfinished 待翻译
+
+ -- Lingmo OS Team <team@lingmo.org>  Wed, 14 Oct 2026 18:32:39 +0800
+
 lingmo-update-ui (1.0.69.lingmo5u1) unstable; urgency=medium
 
   * feat: 控制中心更新页接入 lingmo.org 版本检查 API 并补完判定逻辑
