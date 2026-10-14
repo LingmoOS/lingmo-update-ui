@@ -1,3 +1,20 @@
+lingmo-update-ui (1.0.69.lingmo5u1) unstable; urgency=medium
+
+  * feat: 控制中心更新页接入 lingmo.org 版本检查 API 并补完判定逻辑
+    - 请求参数：build 取 /etc/os-release 的 BUILD_ID（原先误用 showVersion()）；
+      channel 由 VERSION_TYPE 映射（stable->stable、unstable->beta、canary->nightly，
+      未知取值按 stable），原先硬编码 stable
+    - 解析扩展字段：latest.buildVersion/releaseDate/security/critical/mandatory/sizeBytes
+    - 判定矩阵：API 无更新时只按 apt（有更新则显示软件仓库更新）；API 有更新且 apt 无更新
+      时显示“已是最新”；API 与 apt 都有更新时才显示版本更新，
+      版本号显示 version (buildVersion)、日志用 API summary、日期用 releaseDate；
+      security 为真时无视 apt，按安全更新显示且大小取 sizeBytes
+    - API 不可达时直接报错（不再回退成“只按 apt 判断”）
+    - security 更新的下载链接暂未接入，点击更新直接判定成功（stub），供联调测试
+    - 待办：仅仓库更新时隐藏更新日志（需给 UpdateModel 增加 showUpdateLog 属性）
+
+ -- Lingmo OS Team <team@lingmo.org>  Wed, 14 Oct 2026 18:28:51 +0800
+
 lingmo-update-ui (1.0.68.lingmo.1) unstable; urgency=medium
 
   * fix: HTTP系统更新无apt包时合并UnknownUpdate包解决下载无反应

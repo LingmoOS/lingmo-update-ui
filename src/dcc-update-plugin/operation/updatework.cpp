@@ -18,6 +18,8 @@
 #include <QJsonObject>
 #include <QMutexLocker>
 #include <QNetworkAccessManager>
+#include <QFile>
+#include <QTextStream>
 #include <QSysInfo>
 #include <QNetworkReply>
 #include <QUrlQuery>
@@ -44,6 +46,40 @@ const QString ChangeLogFile = "/usr/share/deepin/release-note/UpdateInfo.json";
 const QString ChangeLogDic = "/usr/share/deepin/";
 const QString UpdateLogTmpFile = "/tmp/deepin-update-log.json";
 const QString UpdateCheckBaseUrl = QStringLiteral("https://lingmo.org");
+
+// 读取 /etc/os-release 里的键值（去掉引号）。读法与
+// lingmo-control-center 的 CommonInfoWork::isAlphaVersion() 保持一致。
+static QString osReleaseValue(const QString &key)
+{
+    QFile osRelease("/etc/os-release");
+    if (!osRelease.open(QIODevice::ReadOnly | QIODevice::Text))
+        return QString();
+
+    QTextStream in(&osRelease);
+    const QString prefix = key + "=";
+    while (!in.atEnd()) {
+        const QString line = in.readLine();
+        if (!line.startsWith(prefix))
+            continue;
+        QString v = line.mid(prefix.length()).trimmed();
+        if (v.length() >= 2
+            && ((v.startsWith('"') && v.endsWith('"')) || (v.startsWith('\'') && v.endsWith('\''))))
+            v = v.mid(1, v.length() - 2);
+        return v;
+    }
+    return QString();
+}
+
+// os-release 的 VERSION_TYPE -> API 渠道（用户确认的映射）
+static QString updateChannelFromOsRelease()
+{
+    const QString type = osReleaseValue("VERSION_TYPE").trimmed().toLower();
+    if (type == "unstable")   // 测试版
+        return QStringLiteral("beta");
+    if (type == "canary")     // 每日构建
+        return QStringLiteral("nightly");
+    return QStringLiteral("stable"); // stable 及未知取值都按稳定版
+}
 
 const int LOWEST_BATTERY_PERCENT = 60;
 
@@ -526,10 +562,15 @@ void UpdateWorker::doCheckUpdates()
     else if (locale == "ja") lang = "ja";
     else lang = "en";
 
+    // build 取 os-release 的 BUILD_ID（如 25R07），channel 由 VERSION_TYPE 映射而来
+    const QString buildId = osReleaseValue("BUILD_ID");
+    const QString channel = updateChannelFromOsRelease();
+    qCInfo(logDccUpdatePlugin) << "os-release BUILD_ID:" << buildId << ", channel:" << channel;
+
     QUrlQuery query;
-    query.addQueryItem("build", m_model->showVersion());
+    query.addQueryItem("build", buildId.isEmpty() ? m_model->showVersion() : buildId);
     query.addQueryItem("arch", QSysInfo::currentCpuArchitecture());
-    query.addQueryItem("channel", "stable");
+    query.addQueryItem("channel", channel);
     query.addQueryItem("locale", lang);
 
     QUrl url(UpdateCheckBaseUrl + "/api/v1/update/check");
@@ -554,38 +595,46 @@ void UpdateWorker::doCheckUpdates()
             if (!doc.isNull() && doc.isObject()) {
                 QJsonObject obj = doc.object();
                 m_httpUpdateAvailable = obj.value("updateAvailable").toBool(false);
-                m_httpUpdateVersion = obj.value("latest").toObject().value("version").toString();
+                const QJsonObject latest = obj.value("latest").toObject();
+                m_httpUpdateVersion = latest.value("version").toString();
+                m_httpUpdateBuildVersion = latest.value("buildVersion").toString();
+                m_httpUpdateReleaseDate = latest.value("releaseDate").toString();
+                m_httpUpdateSecurity = latest.value("security").toBool(false);
+                m_httpUpdateCritical = latest.value("critical").toBool(false);
+                m_httpUpdateMandatory = latest.value("mandatory").toBool(false);
+                m_httpUpdateSizeBytes = static_cast<qlonglong>(latest.value("sizeBytes").toDouble(-1));
                 m_httpUpdateSummary = obj.value("summary").toString();
                 m_httpUpdateReleaseNotesUrl = obj.value("releaseNotesUrl").toString();
+                m_httpCheckFailed = false;
+            } else {
+                qCWarning(logDccUpdatePlugin) << "HTTP check response is not a JSON object";
+                m_httpCheckFailed = true;
             }
         } else {
-            qCWarning(logDccUpdatePlugin) << "HTTP check failed, falling back to apt only:" << reply->errorString();
+            // 按需求：API 不可达直接报错，不回退成"只按 apt 判断"
+            qCWarning(logDccUpdatePlugin) << "HTTP check failed:" << reply->errorString();
+            m_httpCheckFailed = true;
             m_httpUpdateAvailable = false;
             m_httpUpdateVersion.clear();
             m_httpUpdateSummary.clear();
             m_httpUpdateReleaseNotesUrl.clear();
         }
+        m_httpCheckDone = true;
+
+        if (m_httpCheckFailed) {
+            m_model->setCheckUpdateStatus(CheckingFailed);
+            m_model->setCheckUpdateErrTips(
+                tr("Failed to check for system updates, please check your network connection"));
+            m_doCheckUpdates = false;
+            return;
+        }
 
         // -- Step 2: Apt-based check (always run) --
         if (!m_updateInter->managerInterIsValid()) {
             qCWarning(logDccUpdatePlugin) << "Lastore D-Bus unavailable, skip apt check";
-            if (m_httpUpdateAvailable && !m_httpUpdateVersion.isEmpty()) {
-                auto *item = new UpdateItemInfo(SystemUpdate);
-                item->setName(m_httpUpdateVersion);
-                item->setExplain(m_httpUpdateSummary.isEmpty()
-                                 ? tr("System upgrade to %1").arg(m_httpUpdateVersion)
-                                 : m_httpUpdateSummary);
-                item->setTypeString(SYSTEM_UPGRADE_TYPE_STRING);
-                item->setUpdateModeEnabled(m_model->updateMode() & UpdateType::SystemUpdate);
-                if (!m_httpUpdateSummary.isEmpty()) {
-                    DetailInfo releaseNote;
-                    releaseNote.name = m_httpUpdateVersion;
-                    releaseNote.info = m_httpUpdateSummary;
-                    releaseNote.link = m_httpUpdateReleaseNotesUrl;
-                    item->addDetailInfo(releaseNote);
-                }
-                m_model->addUpdateInfo(item);
-                item->setUpdateStatus(UpdatesAvailable);
+            // 安全更新无视 apt：lastore 不可用也照样提示
+            if (m_httpUpdateAvailable && m_httpUpdateSecurity && !m_httpUpdateVersion.isEmpty()) {
+                addSystemVersionUpdateItem();
                 m_model->refreshUpdateUiModel();
                 m_model->setLastStatus(UpdatesAvailable, __LINE__);
                 m_model->setCheckUpdateStatus(UpdatesAvailable);
@@ -606,23 +655,8 @@ void UpdateWorker::doCheckUpdates()
             QDBusPendingReply<QDBusObjectPath> reply = *watcher;
             if (reply.isError()) {
                 qCWarning(logDccUpdatePlugin) << "Apt check D-Bus error:" << reply.error().message();
-                if (m_httpUpdateAvailable && !m_httpUpdateVersion.isEmpty()) {
-                    auto *item = new UpdateItemInfo(SystemUpdate);
-                    item->setName(m_httpUpdateVersion);
-                    item->setExplain(m_httpUpdateSummary.isEmpty()
-                                     ? tr("System upgrade to %1").arg(m_httpUpdateVersion)
-                                     : m_httpUpdateSummary);
-                    item->setTypeString(SYSTEM_UPGRADE_TYPE_STRING);
-                    item->setUpdateModeEnabled(m_model->updateMode() & UpdateType::SystemUpdate);
-                    if (!m_httpUpdateSummary.isEmpty()) {
-                        DetailInfo releaseNote;
-                        releaseNote.name = m_httpUpdateVersion;
-                        releaseNote.info = m_httpUpdateSummary;
-                        releaseNote.link = m_httpUpdateReleaseNotesUrl;
-                        item->addDetailInfo(releaseNote);
-                    }
-                    m_model->addUpdateInfo(item);
-                    item->setUpdateStatus(UpdatesAvailable);
+                if (m_httpUpdateAvailable && m_httpUpdateSecurity && !m_httpUpdateVersion.isEmpty()) {
+                    addSystemVersionUpdateItem();
                     m_model->refreshUpdateUiModel();
                     m_model->setLastStatus(UpdatesAvailable, __LINE__);
                     m_model->setCheckUpdateStatus(UpdatesAvailable);
@@ -681,6 +715,37 @@ void UpdateWorker::refreshLastTimeAndCheckCircle()
     m_model->setLastCheckUpdateTime(checkTime);
 }
 
+// 把 lingmo.org API 返回的版本更新做成一个系统更新条目。
+// 版本号显示 version (buildVersion)；security 时更新大小用 API 的 sizeBytes。
+void UpdateWorker::addSystemVersionUpdateItem()
+{
+    auto *item = new UpdateItemInfo(SystemUpdate);
+    const QString title = m_httpUpdateBuildVersion.isEmpty()
+                              ? m_httpUpdateVersion
+                              : QString("%1 (%2)").arg(m_httpUpdateVersion, m_httpUpdateBuildVersion);
+    item->setName(title);
+    item->setAvailableVersion(title);
+    item->setExplain(m_httpUpdateSummary.isEmpty()
+                         ? tr("System upgrade to %1").arg(m_httpUpdateVersion)
+                         : m_httpUpdateSummary);
+    item->setTypeString(SYSTEM_UPGRADE_TYPE_STRING);
+    item->setUpdateModeEnabled(m_model->updateMode() & UpdateType::SystemUpdate);
+    if (!m_httpUpdateReleaseDate.isEmpty())
+        item->setUpdateTime(m_httpUpdateReleaseDate);
+    if (m_httpUpdateSecurity && m_httpUpdateSizeBytes > 0)
+        item->setDownloadSize(m_httpUpdateSizeBytes);
+    if (!m_httpUpdateSummary.isEmpty()) {
+        DetailInfo releaseNote;
+        releaseNote.name = title;
+        releaseNote.info = m_httpUpdateSummary;
+        releaseNote.link = m_httpUpdateReleaseNotesUrl;
+        releaseNote.updateTime = m_httpUpdateReleaseDate;
+        item->addDetailInfo(releaseNote);
+    }
+    m_model->addUpdateInfo(item);
+    item->setUpdateStatus(UpdatesAvailable);
+}
+
 void UpdateWorker::setUpdateInfo()
 {
     qCDebug(logDccUpdatePlugin) << "Setting update information from packages";
@@ -695,10 +760,25 @@ void UpdateWorker::setUpdateInfo()
         }
     }
     qCDebug(logDccUpdatePlugin) << "All packages up to date:" << isUpdated;
+
+    // ---- 与 lingmo.org 版本检查结果合并（用户确认的判定矩阵）----
+    const bool versionUpdate = m_httpUpdateAvailable && !m_httpUpdateVersion.isEmpty();
+    const bool securityUpdate = versionUpdate && m_httpUpdateSecurity; // security=真：无视 apt
+    const bool aptUpdate = !isUpdated;
+    const bool showVersionUpdate = securityUpdate || (versionUpdate && aptUpdate);
+    qCInfo(logDccUpdatePlugin) << "combine: versionUpdate=" << versionUpdate
+                               << "security=" << securityUpdate
+                               << "aptUpdate=" << aptUpdate
+                               << "showVersionUpdate=" << showVersionUpdate;
+
+    if (showVersionUpdate)
+        addSystemVersionUpdateItem();
+
     m_model->refreshUpdateItemsChecked();
     m_model->refreshUpdateStatus();
     m_model->updateAvailableState();
-    m_model->setLastStatus(isUpdated ? Updated : UpdatesAvailable, __LINE__);
+    m_model->setLastStatus((aptUpdate || securityUpdate) ? UpdatesAvailable : Updated, __LINE__);
+    m_model->setCheckUpdateStatus((aptUpdate || securityUpdate) ? UpdatesAvailable : Updated);
 }
 
 void UpdateWorker::setFixedUpdateLogText()
@@ -819,8 +899,18 @@ QString UpdateWorker::calculateRequiredSpaceText(int updateTypes, const QString 
     return QString(originalText).arg(dcc::update::common::formatCap(bytes));
 }
 
+// 安全更新（lingmo.org API 标记 security=true）：
+// 真实下载链接还未接入，先直接判定更新成功，供联调测试。
 void UpdateWorker::startDownload(int updateTypes)
 {
+    if (m_httpUpdateAvailable && m_httpUpdateSecurity && !m_httpUpdateVersion.isEmpty()) {
+        qCInfo(logDccUpdatePlugin) << "security update stub: report success without lastore";
+        Q_UNUSED(updateTypes)
+        m_model->setLastStatus(UpgradeSuccess, __LINE__);
+        m_model->setCheckUpdateStatus(UpdatesAvailable);
+        return;
+    }
+
     qCInfo(logDccUpdatePlugin) << "Start download, update types: " << updateTypes;
 
     // If SystemUpdate has no apt packages (HTTP-only update), strip it from types

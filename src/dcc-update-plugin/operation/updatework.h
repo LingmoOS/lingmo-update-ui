@@ -140,12 +140,22 @@ private:
     QMutex m_downloadMutex;
 
     QString calculateRequiredSpaceText(int updateTypes, const QString &originalText);
+    void addSystemVersionUpdateItem();
 
     bool m_doCheckUpdates;
     bool m_httpUpdateAvailable = false;
     QString m_httpUpdateVersion;
     QString m_httpUpdateSummary;
     QString m_httpUpdateReleaseNotesUrl;
+    // lingmo.org 版本检查 API 的扩展字段
+    QString m_httpUpdateBuildVersion;   // 26R01
+    QString m_httpUpdateReleaseDate;    // 2026-07-01
+    bool m_httpUpdateSecurity = false;  // 安全更新：无视 apt，点击更新直接判成功
+    bool m_httpUpdateCritical = false;
+    bool m_httpUpdateMandatory = false;
+    qlonglong m_httpUpdateSizeBytes = -1; // security 时用于显示更新大小
+    bool m_httpCheckFailed = false;     // API 不可达：直接报错，不回退成"只按 apt"
+    bool m_httpCheckDone = false;
     QPointer<UpdateJobDBusProxy> m_checkUpdateJob;
     QPointer<UpdateJobDBusProxy> m_fixErrorJob;
     QPointer<UpdateJobDBusProxy> m_downloadJob;
