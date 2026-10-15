@@ -562,13 +562,21 @@ void UpdateWorker::doCheckUpdates()
     else if (locale == "ja") lang = "ja";
     else lang = "en";
 
-    // build 取 os-release 的 BUILD_ID（如 25R07），channel 由 VERSION_TYPE 映射而来
-    const QString buildId = osReleaseValue("BUILD_ID");
+    // build 必须用 BUILD_VERSION（形如 26a01 / 26R01 / 26b01）：服务端按
+    // ^(\d+)([a-zA-Z]+)(\d+)$ 校验，而 BUILD_ID 是纯日期（20261014），会被拒绝，
+    // 客户端再把拒绝当成"网络不通"，于是明明有网也提示检查网络连接。
+    QString build = osReleaseValue("BUILD_VERSION").trimmed();
+    if (build.isEmpty())
+        build = osReleaseValue("BUILD_ID").trimmed();
+    if (build.isEmpty())
+        build = m_model->showVersion();
     const QString channel = updateChannelFromOsRelease();
-    qCInfo(logDccUpdatePlugin) << "os-release BUILD_ID:" << buildId << ", channel:" << channel;
+    qCInfo(logDccUpdatePlugin) << "os-release BUILD_VERSION:" << osReleaseValue("BUILD_VERSION")
+                               << ", BUILD_ID:" << osReleaseValue("BUILD_ID")
+                               << "-> sending build:" << build << ", channel:" << channel;
 
     QUrlQuery query;
-    query.addQueryItem("build", buildId.isEmpty() ? m_model->showVersion() : buildId);
+    query.addQueryItem("build", build);
     query.addQueryItem("arch", QSysInfo::currentCpuArchitecture());
     query.addQueryItem("channel", channel);
     query.addQueryItem("locale", lang);
@@ -611,8 +619,9 @@ void UpdateWorker::doCheckUpdates()
                 m_httpCheckFailed = true;
             }
         } else {
-            // 按需求：API 不可达直接报错，不回退成"只按 apt 判断"
-            qCWarning(logDccUpdatePlugin) << "HTTP check failed:" << reply->errorString();
+            qCWarning(logDccUpdatePlugin) << "HTTP check failed:" << reply->errorString()
+                        << "http status:" << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt()
+                        << "url:" << reply->url().toString();
             m_httpCheckFailed = true;
             m_httpUpdateAvailable = false;
             m_httpUpdateVersion.clear();
@@ -622,11 +631,11 @@ void UpdateWorker::doCheckUpdates()
         m_httpCheckDone = true;
 
         if (m_httpCheckFailed) {
-            m_model->setCheckUpdateStatus(CheckingFailed);
-            m_model->setCheckUpdateErrTips(
-                tr("Failed to check for system updates, please check your network connection"));
-            m_doCheckUpdates = false;
-            return;
+            // 服务端不可达/拒绝了请求，并不等于本机没网（apt 往往照常可用）。
+            // 以前这里直接判定为"检查失败"并提示检查网络连接，用户明明有网也会看到
+            // 那句提示，而且连常规更新都不再显示。现在只记录，继续走 apt 检查：
+            // apt 能查到就正常提示更新，查不到就是"已是最新"，不再误导。
+            qWarning(logDccUpdatePlugin) << "HTTP update check failed, continuing with the apt check only";
         }
 
         // -- Step 2: Apt-based check (always run) --

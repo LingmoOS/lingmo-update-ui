@@ -1,3 +1,16 @@
+lingmo-update-ui (1.0.71.lingmo5u1) unstable; urgency=medium
+
+  * fix: 检测更新不再误报"网络连接"、且 build 参数取对字段
+    - 发给 /api/v1/update/check 的 build 取自 os-release 的 BUILD_ID（纯日期
+      20261014），而服务端按 ^(\d+)([a-zA-Z]+)(\d+)$ 校验，要求形如 26a01 的
+      BUILD_VERSION，于是请求被拒，客户端把拒绝当成网络故障并提示"请检查网络连接"——
+      实际网络与 apt 都正常。改为优先 BUILD_VERSION，其次 BUILD_ID，最后 showVersion。
+    - HTTP 检查失败时不再直接判定"检查失败"并 return，而是记录日志后继续走 apt 检查
+      （可用的更新照常提示），避免明明有网却看不到任何更新。
+    - 失败分支补记 HTTP 状态码与 URL，便于定位。
+
+ -- Lingmo OS Team <team@lingmo.org>  Thu, 15 Oct 2026 19:06:25 +0800
+
 lingmo-update-ui (1.0.70.lingmo5u1) unstable; urgency=medium
 
   * i18n: 补齐更新页固定文案的多语言
