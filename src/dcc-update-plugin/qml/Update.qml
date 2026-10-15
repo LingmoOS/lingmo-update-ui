@@ -21,8 +21,7 @@ DccObject {
     displayName: qsTr("System Update")
     description: qsTr("System update and upgrade")
     icon: "update"
-    weight: 100
-
+    weight: 140
     page: DccRightView{
 
         // 当组件创建完成时，设置hasView为true并触发更新检查

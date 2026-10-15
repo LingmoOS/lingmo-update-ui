@@ -1,3 +1,9 @@
+lingmo-update-ui (1.0.73.lingmo5u1) unstable; urgency=medium
+
+  * 侧边栏顺序调整：系统更新项 weight 100 -> 140（配合控制中心新的信息架构）
+
+ -- Lingmo OS Team <team@lingmo.org>  Thu, 15 Oct 2026 21:00:28 +0800
+
 lingmo-update-ui (1.0.72.lingmo5u1) unstable; urgency=medium
 
   * fix: 更新检查改读网站静态数据（API 路由当前一律 404）
