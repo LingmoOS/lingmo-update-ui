@@ -21,6 +21,8 @@ DccObject {
     displayName: qsTr("System Update")
     description: qsTr("System update and upgrade")
     icon: "update"
+    // 双色 SVG（Tabler, MIT）：实际变体由 delegate 按主题/选中态选择
+    iconSource: "file:///usr/share/dde-control-center/icons/sidebar/update-light.svg"
     weight: 140
     page: DccRightView{
 
