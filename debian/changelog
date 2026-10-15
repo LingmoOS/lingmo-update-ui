@@ -1,3 +1,16 @@
+lingmo-update-ui (1.0.72.lingmo5u1) unstable; urgency=medium
+
+  * fix: 更新检查改读网站静态数据（API 路由当前一律 404）
+    网站的 /api/v1/update/check、/api/v1/update 等路由全部返回 404（连站点根路径
+    也是 404），只有静态文件可用；因此客户端无论传什么参数都会被拒，界面便提示
+    "请检查网络连接"。改为直接读取该 API 背后的静态数据
+    https://lingmo.org/content/update.json（结构 channels.<channel>.latest.*），
+    并自行与本地 BUILD_VERSION 比对得出是否有更新；releaseNotesUrl/summary 也从
+    latest 里取（相对路径补成绝对地址）。API 路由恢复后把 URL 换回
+    "/api/v1/update/check" 即可，字段一致。
+
+ -- Lingmo OS Team <team@lingmo.org>  Thu, 15 Oct 2026 19:07:47 +0800
+
 lingmo-update-ui (1.0.71.lingmo5u1) unstable; urgency=medium
 
   * fix: 检测更新不再误报"网络连接"、且 build 参数取对字段

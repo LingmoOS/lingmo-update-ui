@@ -581,8 +581,10 @@ void UpdateWorker::doCheckUpdates()
     query.addQueryItem("channel", channel);
     query.addQueryItem("locale", lang);
 
-    QUrl url(UpdateCheckBaseUrl + "/api/v1/update/check");
-    url.setQuery(query);
+    // 注意：网站目前只部署了静态文件，/api/v1/update/check 等 API 路由一律返回 404
+    // （连站点根路径也是 404），所以这里直接读取 API 背后的那份静态数据并自行比对。
+    // 等 API 路由上线后，把这一行换回 "/api/v1/update/check" 即可（响应字段一致）。
+    QUrl url(UpdateCheckBaseUrl + "/content/update.json");
 
     qCInfo(logDccUpdatePlugin) << "Checking system update via HTTP:" << url.toString();
 
@@ -601,9 +603,26 @@ void UpdateWorker::doCheckUpdates()
             qCInfo(logDccUpdatePlugin) << "HTTP check response:" << data;
             QJsonDocument doc = QJsonDocument::fromJson(data);
             if (!doc.isNull() && doc.isObject()) {
-                QJsonObject obj = doc.object();
-                m_httpUpdateAvailable = obj.value("updateAvailable").toBool(false);
-                const QJsonObject latest = obj.value("latest").toObject();
+                const QJsonObject obj = doc.object();
+
+                // 静态文件结构：{"channels": {"<channel>": {"latest": {...}}}}
+                const QJsonObject channels = obj.value("channels").toObject();
+                QJsonObject chan = channels.value(channel).toObject();
+                if (chan.isEmpty())
+                    chan = channels.value(QStringLiteral("stable")).toObject();   // 渠道名不匹配时兜底
+                const QJsonObject latest = chan.value("latest").toObject();
+                if (latest.isEmpty()) {
+                    qCWarning(logDccUpdatePlugin) << "No latest entry for channel" << channel
+                                                  << "in update.json, channels:" << channels.keys();
+                    m_httpCheckFailed = true;
+                }
+
+                // 本地 build（BUILD_VERSION，如 26a01）与渠道最新 build 比对：
+                // 形如 YY+阶段+NN，同格式下字典序即版本序（a < b < r），大小写不敏感。
+                const QString localBuild = build;
+                const QString latestBuild = latest.value("buildVersion").toString();
+                m_httpUpdateAvailable = !latestBuild.isEmpty()
+                        && latestBuild.compare(localBuild, Qt::CaseInsensitive) > 0;
                 m_httpUpdateVersion = latest.value("version").toString();
                 m_httpUpdateBuildVersion = latest.value("buildVersion").toString();
                 m_httpUpdateReleaseDate = latest.value("releaseDate").toString();
@@ -611,9 +630,12 @@ void UpdateWorker::doCheckUpdates()
                 m_httpUpdateCritical = latest.value("critical").toBool(false);
                 m_httpUpdateMandatory = latest.value("mandatory").toBool(false);
                 m_httpUpdateSizeBytes = static_cast<qlonglong>(latest.value("sizeBytes").toDouble(-1));
-                m_httpUpdateSummary = obj.value("summary").toString();
-                m_httpUpdateReleaseNotesUrl = obj.value("releaseNotesUrl").toString();
-                m_httpCheckFailed = false;
+                m_httpUpdateSummary = latest.value("summary").toString();
+                m_httpUpdateReleaseNotesUrl = latest.value("releaseNotesUrl").toString();
+                if (m_httpUpdateReleaseNotesUrl.startsWith(QLatin1Char('/')))
+                    m_httpUpdateReleaseNotesUrl.prepend(UpdateCheckBaseUrl);
+                if (!latest.isEmpty())
+                    m_httpCheckFailed = false;
             } else {
                 qCWarning(logDccUpdatePlugin) << "HTTP check response is not a JSON object";
                 m_httpCheckFailed = true;
