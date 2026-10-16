@@ -594,7 +594,7 @@ void UpdateWorker::doCheckUpdates()
     auto *http = new QNetworkAccessManager(this);
     QNetworkReply *reply = http->get(request);
 
-    connect(reply, &QNetworkReply::finished, this, [this, reply, http]() {
+    connect(reply, &QNetworkReply::finished, this, [this, reply, http, channel, build]() {
         reply->deleteLater();
         http->deleteLater();
 

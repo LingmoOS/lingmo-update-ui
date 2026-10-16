@@ -1,3 +1,14 @@
+lingmo-update-ui (1.0.75.lingmo5u1) unstable; urgency=medium
+
+  * fix: 更新检查的 lambda 漏捕获 channel/build 导致编译失败
+    updatework.cpp 的 HTTP 检查回调引用了外层的 channel 与 build，但捕获列表只有
+    [this, reply, http]，编译报：
+      error: 'channel' is not captured
+      error: 'build' is not captured
+    现改为 [this, reply, http, channel, build]（两者均为 QString 值类型，按值捕获）。
+
+ -- Lingmo OS Team <team@lingmo.org>  Fri, 16 Oct 2026 13:05:01 +0800
+
 lingmo-update-ui (1.0.74.lingmo5u1) unstable; urgency=medium
 
   * 侧栏系统更新图标改用 Tabler 双色 SVG（iconSource，随主题与选中态切换）
